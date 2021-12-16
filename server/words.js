@@ -19,7 +19,7 @@ const wordsInit = () => {
   });
 }
 
-const doesWordExist = (word) => { // return a boolean
+const isValidWord = (word) => { // return a boolean
   return wordSet.has(word);
 }
 
@@ -46,4 +46,4 @@ const getScrambledLetters = (wordLen) => {
   return randomWordArr;
 }
 
-module.exports = { wordsInit, doesWordExist, getScrambledLetters };
+module.exports = { wordsInit, isValidWord, getScrambledLetters };

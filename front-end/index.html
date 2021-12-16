@@ -7,6 +7,24 @@
   <title>Anagrams</title>
 </head>
 <body>
-  Hello!
+  <form id="random_letter_form"  method="GET">
+    <label for="length">Word Length:</label>
+    <select name="length" id="lengthValue">
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+      <option value="6">6</option>
+      <option value="7">7</option>
+      <option value="8">8</option>
+      <option value="9">9</option>
+      <option value="10">10</option>
+    </select>
+    <input type="submit">
+  </form>
+  <hr>
+  <h3 id="random_letters"></h3>
 </body>
+<footer>
+  <script src="script.js"></script>
+</footer>
 </html>

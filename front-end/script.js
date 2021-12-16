@@ -17,7 +17,19 @@ window.onload = function() {
 const getLetters = (wordLen) => {
   fetch(`http://localhost:5001/generate?length=${wordLen}`).then( (response) => {
     response.text().then( (text) => {
-      document.getElementById("random_letters").innerHTML = text;
+      const regex = /[a-z]/g;
+      const letters = text.match(regex);
+      // const letters = text.split('\[,\]+');
+      console.log(`Text: |${letters}|`);
+      const div = document.getElementById("random_letters");
+      for (let i = 0; i < letters.length; i++) {
+        div.innerHTML += `<div id=letter${i + 1}></div>`;
+        document.getElementById(`letter${i + 1}`).innerHTML = letters[i];
+        // div.children = text.charAt(i);
+        console.log(`Letter ${i}: ${letters[i]}`);
+      }
+
+      // div.innerHTML = text;
     });
   });
 }

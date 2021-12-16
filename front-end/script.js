@@ -1,17 +1,35 @@
+let ready = false;
 window.onload = function() {
     const form = document.getElementById("random_letter_form");
+    const submissionForm = document.getElementById("submission");
+    const readyButton = document.getElementById("ready_button");
+
+    updateReadyStatus(ready);
 
     form.onsubmit = (e) => {
         getLetters(e.target.length.value);
         e.preventDefault();
     }
 
-    const submissionForm = document.getElementById("submission");
-
     submissionForm.onsubmit = (e) => {
       displayVailidity(e.target.word.value);
       e.preventDefault();
     }
+
+    readyButton.onclick = (e) => {
+      ready = !ready;
+      document.getElementById('ready_status').classList.toggle('ready');
+      updateReadyStatus(ready);
+    }
+}
+
+const updateReadyStatus = (ready) => {
+  const readyStatus = document.getElementById("ready_status");
+  if (ready) {
+    readyStatus.innerHTML = "Ready";
+  } else {
+    readyStatus.innerHTML = "Not Ready";
+  }
 }
 
 const getLetters = (wordLen) => {

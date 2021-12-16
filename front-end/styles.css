@@ -1,0 +1,10 @@
+#ready_status {
+  background-color: red;
+  color: white;
+  text-align: center;
+  width: 20%;
+}
+
+.ready {
+    background-color: green !important;
+}

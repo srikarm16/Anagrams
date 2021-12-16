@@ -4,6 +4,7 @@ const { Server } = require("socket.io");
 const cors = require("cors");
 
 const { wordsInit, isValidWord, getScrambledLetters } = require('./words.js');
+const { appendFileSync } = require("fs");
 
 const app = express();
 const httpServer = createServer(app);
@@ -11,6 +12,8 @@ const io = new Server(httpServer, { /* options */ });
 const port = 5001;
 
 app.use(cors());
+app.use(express.json({extended: true}));
+
 app.get("/generate", (req, res) => {
     const len = req.query.length;
     const scrambledLetters = getScrambledLetters(parseInt(len));

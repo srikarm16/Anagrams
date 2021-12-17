@@ -8,6 +8,21 @@
   <link rel="stylesheet" href="styles/style.css">
 </head>
 <body>
+  <form id="random_letter_form" method="GET">
+    <label for="length">Word Length:</label>
+    <select name="length" id="lengthValue">
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+      <option value="6">6</option>
+      <option value="7">7</option>
+      <option value="8">8</option>
+      <option value="9">9</option>
+      <option value="10">10</option>
+    </select>
+    <input type="submit">
+  </form>
+  <hr>
   <div id="random_letters"></div>
   <br>
   <br>
@@ -16,8 +31,18 @@
     <input type="submit">
   </form>
   <h3 class="" id="submissionDisplay"></h3>
+
+  <hr>
+  <h3 id="ready_status">Not Ready</h3>
+  <button id="ready_button">Change Ready Status</button>
+
+  <hr>
+  <h3 id="my-user"></h3>
+  <hr>
+  <div id="users"></div>
 </body>
 <footer>
   <script src="https://cdn.socket.io/4.4.0/socket.io.min.js" integrity="sha384-1fOn6VtTq3PWwfsOrk45LnYcGosJwzMHv+Xh/Jx5303FVOXzEnw0EpLv30mtjmlj" crossorigin="anonymous"></script>
+  <script src="scripts/script.js"></script>
 </footer>
 </html>

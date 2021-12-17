@@ -5,44 +5,25 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Anagrams</title>
-  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <form id="random_letter_form" method="GET">
-    <label for="length">Word Length:</label>
-    <select name="length" id="lengthValue">
-      <option value="3">3</option>
-      <option value="4">4</option>
-      <option value="5">5</option>
-      <option value="6">6</option>
-      <option value="7">7</option>
-      <option value="8">8</option>
-      <option value="9">9</option>
-      <option value="10">10</option>
-    </select>
-    <input type="submit">
-  </form>
-  <hr>
-  <div id="random_letters"></div>
-  <br>
-  <br>
-  <form id="submission" method="get">
-    <input type="text" name="word" id="wordSubmission">
-    <input type="submit">
-  </form>
-  <h3 class="" id="submissionDisplay"></h3>
+  <form id="enter_game_form">
+    <label for="team_name">Team Name</label>
+    <br/>
+    <input type="text" name="team_name" id="team_name">
+    <hr/>
+    <input type="radio" name="player_type" value="player" id="teamName" checked>
+    <label for="teamName">Player</label>
+    
+    <br/>
+    <input type="radio" name="player_type" value="spectator" id="spectatorID">
+    <label for="spectatorID">Spectator</label>
 
-  <hr>
-  <h3 id="ready_status">Not Ready</h3>
-  <button id="ready_button">Change Ready Status</button>
-
-  <hr>
-  <h3 id="my-user"></h3>
-  <hr>
-  <div id="users"></div>
+    <hr/>
+    <input type="submit" value="Submit">
+  </form>
 </body>
 <footer>
-  <script src="https://cdn.socket.io/4.4.0/socket.io.min.js" integrity="sha384-1fOn6VtTq3PWwfsOrk45LnYcGosJwzMHv+Xh/Jx5303FVOXzEnw0EpLv30mtjmlj" crossorigin="anonymous"></script>
-  <script src="script.js"></script>
+  <script src="scripts/index.js"></script>
 </footer>
 </html>

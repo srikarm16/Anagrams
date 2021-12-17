@@ -2,9 +2,15 @@ const express = require("express");
 const { createServer } = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
+const mongoose = require("mongoose");
 
 const { wordsInit, isValidWord, getScrambledLetters } = require('./words.js');
-const { appendFileSync } = require("fs");
+
+mongoose.connect('mongodb://localhost:27017/test').then(() => {
+  console.log("Connected to Database");
+}).catch((err) => {
+  console.log("Failed to connect to database", err);
+});
 
 const app = express();
 const httpServer = createServer(app);

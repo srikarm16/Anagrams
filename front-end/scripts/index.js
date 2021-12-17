@@ -17,9 +17,9 @@ window.onload = function () {
       .then( (data) => {
         data.json().then( (object) => {
           console.log("NAME: ", object.name);
+          window.location.href = "ready.html";
         });
       });
-    window.location.href = "ready.html";
     e.preventDefault();
   }
 

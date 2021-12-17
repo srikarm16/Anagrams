@@ -1,16 +1,8 @@
-let id = localStorage.getItem("userId") ?? -1;
-id = parseInt(id);
 let ready = false;
 
 window.onload = function() {
     const socket = io("http://localhost:5001", { transports: ['websocket'] });
-    socket.emit("connected", id);
-    socket.on("your_id", data => {
-      id = data;
-      document.getElementById('my-user').innerHTML = `I'm User ${data}`;
-      localStorage.setItem('userId', id);
-      getListOfUsers();
-    });
+    getListOfUsers();
 
     socket.on("new_user", data => {
       addUser(data.name, data.number);

@@ -36,15 +36,14 @@ app.use(bodyParser.urlencoded({extended: true}));
 io.on("connection", async (socket) => {
   var cookies = cookie.parse(socket.handshake.headers.cookie);    
   socket.id = cookies.id;
-
   socket.on("ready_update", async (ready) => {
-    const user = await User.findById({
-      id: socket.id,
+    const user = await User.findOne({
+      _id: mongoose.Types.ObjectId(socket.id),
     });
     user.ready = ready;
     await user.save();
     socket.broadcast.emit("ready_update", {
-      id: socket.id,
+      _id: socket.id,
       ready
     });
 
@@ -61,12 +60,16 @@ io.on("connection", async (socket) => {
   });
 
   socket.on("disconnect", async () => {
-    const user = await User.findById({
-      id: socket.id,
-    });
-    user.connected = false;
-    await user.save();
-    socket.broadcast.emit("user_disconnected", socket.id);
+    try {
+      const user = await User.findOne({
+        _id: mongoose.Types.ObjectId(socket.id),
+      });
+      user.connected = false;
+      await user.save();
+      socket.broadcast.emit("user_disconnected", socket.id);
+    } catch(err) {
+      console.log("Disconnect error", err);
+    }
   });
 });
 
@@ -85,8 +88,9 @@ app.get("/check", (req, res) => {
 
 app.get("/user_list", async (req, res) => {
   const data = {};
+
   const users = await User.find({});
-  console.log(users);
+  // console.log(users);
   // users.forEach((val, key) => {
   //   data[key] = val;
   // })
@@ -106,9 +110,8 @@ app.post("/create_user", async (req, res) => {
   newUser.connected = true;
 
   try {
-    console.log(newUser);
     await newUser.save();
-    res.cookie('id', newUser._id, {expires: new Date(253402300000000)}); // never expire
+    res.cookie('id', newUser._id.toString(), {expires: new Date(253402300000000)}); // never expire
     res.json({
       name: name,
     });

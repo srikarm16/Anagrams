@@ -2,7 +2,11 @@ const express = require("express");
 const { createServer } = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
+const bodyParser = require('body-parser');
+const cookie = require("cookie");
 const mongoose = require("mongoose");
+const User = require("./models/User");
+const cookieParser = require('cookie-parser');
 
 const { wordsInit, isValidWord, getScrambledLetters } = require('./words.js');
 
@@ -17,43 +21,37 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, { /* options */ });
 const port = 5001;
 
-app.use(cors());
-app.use(express.json({extended: true}));
+const corsOptions = {
+  origin: "http://localhost:5500",
+  credentials:true,            //access-control-allow-credentials:true
+  optionSuccessStatus:200,
+}
+app.use(cors(corsOptions));
+app.use(cookieParser());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
+// app.use(express.json());
+// app.use(express.urlencoded({extended: true}));
 
-const rooms = [1, 2, 3, 4];
+io.on("connection", async (socket) => {
+  var cookies = cookie.parse(socket.handshake.headers.cookie);    
+  socket.id = cookies.id;
 
-
-let numUsers = 0;
-let userIds = 0;
-const users = new Map();
-
-io.on("connection", (socket) => {
-  // ...
-  socket.on('connected', (id) => {
-      console.log(users);
-    if (id === -1) {
-      createNewUser(socket);
-    } else {
-      console.log("ID: ", id, users.has(id));
-      socket.id = id;
-      users.get(socket.id).connected = true;
-    }
-    socket.emit("your_id", socket.id);
-    socket.broadcast.emit("new_user", users.get(socket.id));
-  });
-
-
-  socket.on("ready_update", (ready) => {
-    users.get(socket.id).ready = ready;
+  socket.on("ready_update", async (ready) => {
+    const user = await User.findById({
+      id: socket.id,
+    });
+    user.ready = ready;
+    await user.save();
     socket.broadcast.emit("ready_update", {
       id: socket.id,
       ready
     });
 
-
+    const users = await User.find({});
     let allReady = true;
-    users.forEach((entry, id) => {
-      if (users.get(id).ready !== true)
+    users.forEach((entry) => {
+      if (entry.ready !== true)
         allReady = false;
     });
 
@@ -62,12 +60,14 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("disconnect", () => {
-    users.get(socket.id).connected = false;
+  socket.on("disconnect", async () => {
+    const user = await User.findById({
+      id: socket.id,
+    });
+    user.connected = false;
+    await user.save();
     socket.broadcast.emit("user_disconnected", socket.id);
-    numUsers--;
   });
-  // socket.join(rooms.shift());
 });
 
 
@@ -82,12 +82,39 @@ app.get("/check", (req, res) => {
   res.send(isValidWord(word));
 });
 
-app.get("/user_list", (req, res) => {
+
+app.get("/user_list", async (req, res) => {
   const data = {};
-  users.forEach((val, key) => {
-    data[key] = val;
-  })
+  const users = await User.find({});
+  console.log(users);
+  // users.forEach((val, key) => {
+  //   data[key] = val;
+  // })
   res.json(data);
+});
+
+app.post("/create_user", async (req, res) => {
+  const name = req.body.name;
+  const gameMode = req.body.gameMode;
+
+  const newUser = new User();
+  newUser.gameMode = gameMode;
+  newUser.name = name;
+  newUser.score = 0;
+  newUser.ready = false;
+
+  newUser.connected = true;
+
+  try {
+    console.log(newUser);
+    await newUser.save();
+    res.cookie('id', newUser._id, {expires: new Date(253402300000000)}); // never expire
+    res.json({
+      name: name,
+    });
+  } catch(err) {
+    res.status(401);
+  }
 });
 
 httpServer.listen(port, () => {

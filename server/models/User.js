@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const userSchema = mongoose.Schema({
-    player_type: String,
+    gameMode: String,
     score: Number,
     ready: Boolean,
     name: String,
@@ -9,3 +9,4 @@ const userSchema = mongoose.Schema({
 });
 
 const User = mongoose.model('User', userSchema);
+module.exports = User;

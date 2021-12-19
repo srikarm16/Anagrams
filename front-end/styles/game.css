@@ -20,7 +20,7 @@ body {
   display: flex;
   flex-direction: row;
   justify-content: center;
-  column-gap: 2.5em;
+  column-gap: 1.5em;
   align-items: center;
 }
 
@@ -37,7 +37,16 @@ div > div {
 }
 
 .selected {
-  background-color: rgb(226, 198, 147);
+  background-color: rgba(255, 202, 104, 0.25);
+}
+
+#timer {
+  font-size: 64pt;
+  margin-bottom: 0.25em;
+}
+
+.time-ending {
+  color: red;
 }
 
 #random_letters {
@@ -45,12 +54,17 @@ div > div {
   justify-content: center;
   align-items: center;
   column-gap: 3em;
-  margin-bottom: 5em;
+  margin-bottom: 1em;
   padding: 1em;
-  border: 0.25em solid;
+  /* border: 0.25em solid; */
   border-radius: 0.35em;
 }
 
 span > div {
-  font-size: 72pt;
+  font-size: 56pt;
+}
+
+#score {
+  font-size: 24pt;
+  margin-top: 1em;
 }

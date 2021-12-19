@@ -4,6 +4,7 @@ const maxLength = 6;
 let currIndex = 1;
 let lettersPressed = 0;
 const alpha = new Set();
+let seconds = 60;
 
 window.onload = function() {
   createDivs();
@@ -64,6 +65,10 @@ window.onload = function() {
       letterElements[lettersPressed].classList.add("selected");
     }
   });
+
+
+  // Timer Start
+  setTimeout(timer, 5000);
 }
 
 const createDivs = () => {
@@ -74,7 +79,7 @@ const createDivs = () => {
     const letter = document.createElement('div');
     letter.id = `r${i + 1}`;
     letter.maxLength = 1;
-    letter.innerHTML = 'A';
+    letter.innerHTML = '';
     randomLetter.appendChild(letter);
     
     const guess = document.createElement('div');
@@ -109,6 +114,15 @@ const getRandomLetters = (wordLen) => {
 
 const updateScore = (word) => {
   console.log(word);
+}
+
+const timer = () => {
+  const display = ((seconds > 10) ? '0:' : '0:0') + --seconds;
+  if (seconds <= 10)
+    document.getElementById('timer').classList.add('time-ending');
+  document.getElementById('timer').innerHTML = display;
+  if (seconds > 0)
+    setTimeout(timer, 1000);
 }
 
 // function attachKeyupListenerToInputElements(){

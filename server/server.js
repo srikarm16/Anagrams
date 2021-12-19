@@ -109,7 +109,6 @@ app.get("/check", (req, res) => {
   res.send(isValidWord(word));
 });
 
-
 app.get("/user_list", async (req, res) => {
   const data = {};
 

@@ -6,6 +6,9 @@ let lettersPressed = 0;
 const alpha = new Set();
 
 window.onload = function() {
+  createDivs();
+  getRandomLetters(maxLength);
+
   const abc = "abcdefghijklmnopqrstuvwxyz";
   for (let i = 0; i < abc.length; i++)
     alpha.add(abc.charAt(i));
@@ -39,6 +42,8 @@ window.onload = function() {
       document.getElementById('guesses').querySelectorAll('div').forEach(child => {
         child.innerHTML = '';
       });
+
+      updateScore(word);
     }
     // document.getElementById(`l${currIndex++}`).innerHTML = letter;
   });
@@ -55,6 +60,50 @@ window.onload = function() {
   //     }
   //   }
   // }
+}
+
+const createDivs = () => {
+  const randomLetter = document.getElementById('random_letters');
+  const guessLetter = document.getElementById('guesses');
+
+  for (let i = 0; i < maxLength; i++) {
+    const letter = document.createElement('div');
+    letter.id = `r${i + 1}`;
+    letter.maxLength = 1;
+    randomLetter.appendChild(letter);
+    console.log(letter);
+    console.log(letter.parentNode);
+    
+    const guess = document.createElement('div');
+    guess.id = `l${i + 1}`;
+    guess.maxLength = 1;
+    guessLetter.appendChild(guess);
+    console.log(guess);
+    console.log(guess.parentNode);
+  }
+
+  console.log(randomLetter);
+  console.log(guessLetter);
+};
+
+const getRandomLetters = (wordLen) => {
+  fetch(`http://localhost:5001/generate?length=${wordLen}`).then( (response) => {
+    response.text().then( (text) => {
+      const regex = /[a-z]/g;
+      const letters = text.match(regex);
+      const div = document.getElementById("guesses");
+      // console.log(div);
+      // console.log(letters);
+      div.innerHTML = '';
+      for (let i = 0; i < letters.length; i++) {
+        // div.children[i].innerHTML = letters[i];
+      }
+    });
+  });
+}
+
+const updateScore = (word) => {
+
 }
 
 // function attachKeyupListenerToInputElements(){

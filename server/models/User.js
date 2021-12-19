@@ -6,6 +6,7 @@ const userSchema = mongoose.Schema({
     ready: Boolean,
     name: String,
     connected: Boolean,
+    words: [String],
 });
 
 const User = mongoose.model('User', userSchema);

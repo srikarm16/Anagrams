@@ -25,6 +25,7 @@ body {
 }
 
 div > div {
+  border: 2px solid rgba(0, 0, 0, 0.34);
   width: 2em;
   height: 2em;
   border-radius: 0.5em;
@@ -33,6 +34,10 @@ div > div {
   justify-content: center;
   align-items: center;
   font-size: 25pt;
+}
+
+.selected {
+  background-color: rgb(226, 198, 147);
 }
 
 #random_letters {

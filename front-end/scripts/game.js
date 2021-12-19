@@ -19,6 +19,7 @@ window.onload = function() {
   }
 
   // document.getElementById('l1').focus();
+  letterElements[0].classList.add('selected');
 
   // attachKeyupListenerToInputElements();
   document.addEventListener("keydown", (e) => {
@@ -26,11 +27,21 @@ window.onload = function() {
 
     if (letter === 'Backspace') {
       if (lettersPressed !== 0) {
+
+      if (lettersPressed < maxLength) {
+        letterElements[lettersPressed].classList.remove('selected');
+      }
+
         letterElements[--lettersPressed].innerHTML = '';
         letters[lettersPressed] = '';
       }
     } else if (alpha.has(letter) && lettersPressed != maxLength) {
       letters[lettersPressed] = letter;
+
+      if (lettersPressed < maxLength) {
+        letterElements[lettersPressed].classList.remove('selected');
+      }
+
       letterElements[lettersPressed++].innerHTML = letter;
     }
     else if (letter === "Enter") {
@@ -40,26 +51,19 @@ window.onload = function() {
 
       lettersPressed = 0;
       document.getElementById('guesses').querySelectorAll('div').forEach(child => {
+
+        child.classList.remove('selected');
+
         child.innerHTML = '';
       });
+      letterElements[0].classList.add('selected');
 
       updateScore(word);
     }
-    // document.getElementById(`l${currIndex++}`).innerHTML = letter;
+    if (lettersPressed < maxLength) {
+      letterElements[lettersPressed].classList.add("selected");
+    }
   });
-
-  // document.querySelectorAll('input').onkeyup = () => {
-  //   const box = document.getElementById(`l${currentIndex}`);
-  //   console.log(`CurrIndex: ${currIndex}`);
-  //   if (box.value.length == 1) {
-
-  //     if (currentIndex !== maxLength) {
-  //       console.log(`CurrIndex: ${currIndex}`);
-  //       currIndex++;
-  //       document.getElementById(`l${currentIndex}`).focus();
-  //     }
-  //   }
-  // }
 }
 
 const createDivs = () => {
@@ -70,20 +74,14 @@ const createDivs = () => {
     const letter = document.createElement('div');
     letter.id = `r${i + 1}`;
     letter.maxLength = 1;
+    letter.innerHTML = 'A';
     randomLetter.appendChild(letter);
-    console.log(letter);
-    console.log(letter.parentNode);
     
     const guess = document.createElement('div');
     guess.id = `l${i + 1}`;
     guess.maxLength = 1;
     guessLetter.appendChild(guess);
-    console.log(guess);
-    console.log(guess.parentNode);
   }
-
-  console.log(randomLetter);
-  console.log(guessLetter);
 };
 
 const getRandomLetters = (wordLen) => {
@@ -91,19 +89,16 @@ const getRandomLetters = (wordLen) => {
     response.text().then( (text) => {
       const regex = /[a-z]/g;
       const letters = text.match(regex);
-      const div = document.getElementById("guesses");
-      // console.log(div);
-      // console.log(letters);
-      div.innerHTML = '';
+      const div = document.getElementById("random_letters");
       for (let i = 0; i < letters.length; i++) {
-        // div.children[i].innerHTML = letters[i];
+        div.children[i].innerHTML = letters[i];
       }
     });
   });
 }
 
 const updateScore = (word) => {
-
+  console.log(word);
 }
 
 // function attachKeyupListenerToInputElements(){

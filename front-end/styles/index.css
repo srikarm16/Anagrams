@@ -1,5 +1,5 @@
 * {
-  font-family: 'Comfortaa', cursive, bold;
+  font-family: 'Comfortaa', cursive;
 }
 
 body {
@@ -10,7 +10,7 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(217deg, rgba(255,0,0,.65), rgba(255,0,0,0.15) 70.71%);
+  background: linear-gradient(217deg, rgba(255,0,0,.6), rgba(255,0,0,0.15) 70.71%);
             /* linear-gradient(127deg, rgba(0,255,0,.5), rgba(0,255,0,0) 70.71%), */
             /* linear-gradient(336deg, rgba(0,0,255,.5), rgba(0,0,255,0) 70.71%); */
 }

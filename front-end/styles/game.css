@@ -1,0 +1,51 @@
+* {
+  caret-color: transparent;
+  font-family: 'Comfortaa', cursive;
+}
+
+body {
+  width: 100%;
+  height: 100vh;
+  background: /*linear-gradient(217deg, rgba(255,0,0,.65), rgba(255,0,0,0.15) 70.71%); */
+            /* linear-gradient(127deg, rgba(0,255,0,.5), rgba(0,255,0,0) 70.71%), */
+            linear-gradient(217deg, rgba(220, 200, 255, 1), rgba(220, 200, 255, 0.4) 70.71%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#guesses {
+  width: 60%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  column-gap: 2.5em;
+  align-items: center;
+}
+
+div > div {
+  width: 2em;
+  height: 2em;
+  border-radius: 0.5em;
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 25pt;
+}
+
+#random_letters {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  column-gap: 3em;
+  margin-bottom: 5em;
+  padding: 1em;
+  border: 0.25em solid;
+  border-radius: 0.35em;
+}
+
+span > div {
+  font-size: 72pt;
+}

@@ -6,9 +6,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Anagrams</title>
   <link rel="stylesheet" href="styles/style.css">
+  <link rel="stylesheet" href="styles/game.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@600&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div id="random_letters"></div>
+  
+  <!-- <div id="letters"> -->
+    <span id="random_letters">
+      <div id="r1" type="text" maxlength="1">A</div>
+      <div id="r2" type="text" maxlength="1">C</div>
+      <div id="r3" type="text" maxlength="1">D</div>
+      <div id="r4" type="text" maxlength="1">E</div>
+      <div id="r5" type="text" maxlength="1">H</div>
+      <div id="r6" type="text" maxlength="1">J</div>
+    </span>
+
+    <div id="guesses">
+      <div id="l1" type="text" maxlength="1"></div>
+      <div id="l2" type="text" maxlength="1"></div>
+      <div id="l3" type="text" maxlength="1"></div>
+      <div id="l4" type="text" maxlength="1"></div>
+      <div id="l5" type="text" maxlength="1"></div>
+      <div id="l6" type="text" maxlength="1"></div>
+    </div>
+  <!-- </div> -->
+
+  <!-- <div id="random_letters"></div>
   <br>
   <br>
   <form id="submission" method="get">
@@ -16,8 +41,12 @@
     <input type="submit">
   </form>
   <h3 class="" id="submissionDisplay"></h3>
+  <br>
+  <hr>
+  <br> -->
 </body>
 <footer>
+  <script src="scripts/game.js"></script>
   <script src="https://cdn.socket.io/4.4.0/socket.io.min.js" integrity="sha384-1fOn6VtTq3PWwfsOrk45LnYcGosJwzMHv+Xh/Jx5303FVOXzEnw0EpLv30mtjmlj" crossorigin="anonymous"></script>
 </footer>
 </html>

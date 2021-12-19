@@ -1,21 +1,45 @@
 let ready = false;
 
+function analyzeCookieForId(unformattedCookie) {
+  const cookies = unformattedCookie.split(";");
+  let id = null;
+  cookies.forEach((cookie) => {
+    cookie = cookie.trim();
+    if (cookie.startsWith("id=")) {
+      id = cookie.substring("id=".length);
+    }
+  });
+  return id;
+}
+
+const id = analyzeCookieForId(document.cookie);
+console.log(id);
+if (id ==  null) {
+  window.location.href = "index.html"
+}
+
 window.onload = function() {
+    document.getElementById("my-user").innerHTML = `I'm ${localStorage.getItem("teamName")}`;
+
     const socket = io("http://localhost:5001", { transports: ['websocket'] });
     getListOfUsers();
 
     socket.on("new_user", data => {
-      addUser(data.name, data.number);
+      addUser(data._id, data.name, data.ready);
     });
 
     socket.on('user_disconnected', data => {
-      const child = document.getElementById(`user-${data}`);
-      child.parentNode.removeChild(child);
+      // do something
+      console.log(data);
     });
 
     socket.on('ready_update', (data) => {
-      if (data.id !== id) {
-        document.getElementById(`user-${data.id}`).classList.toggle('ready');
+      if (data._id !== id) {
+        if (data.ready) {
+          document.getElementById(`user-${data._id}`).classList.add("ready");
+        } else {
+          document.getElementById(`user-${data._id}`).classList.remove("ready");
+        }
       }
     });
 
@@ -47,22 +71,24 @@ window.onload = function() {
     }
 }
 
-const addUser = (name, number) => {
-  if (id !== -1 && number !== id) {
-    let new_user = document.createElement('div');
-    new_user.textContent = name;
-    new_user.id = `user-${number}`;
-    document.getElementById('users').appendChild(new_user);
-  }
+const addUser = (id, name, ready) => {
+  let new_user = document.createElement('div');
+  new_user.id = `user-${id}`
+  new_user.textContent = name;
+  new_user.className = (ready ? "ready" : "");
+  document.getElementById('users').appendChild(new_user);
 }
 
 const updateReadyStatus = (ready) => {
   const readyStatus = document.getElementById("ready_status");
   if (ready) {
     readyStatus.innerHTML = "Ready";
+    readyStatus.classList.add("ready");
   } else {
     readyStatus.innerHTML = "Not Ready";
+    readyStatus.classList.remove("ready");
   }
+  localStorage.setItem("ready", ready);
 }
 
 const getLetters = (wordLen) => {
@@ -99,8 +125,11 @@ const getListOfUsers = () => {
     response.json().then( (object) => {
       console.log("Object: ", object);
       Object.keys(object).forEach((key) => {
-        console.log(key, object[key]);
-        addUser(object[key].name, object[key].number);
+        if (key === id) {
+          updateReadyStatus(object[key].ready);
+        } else {
+          addUser(key, object[key].name, object[key].ready);
+        }
       });
     });
   });

@@ -85,7 +85,17 @@ const createDivs = () => {
 };
 
 const getRandomLetters = (wordLen) => {
-  fetch(`http://localhost:5001/generate?length=${wordLen}`).then( (response) => {
+  // fetch(`http://localhost:5001/generate?length=${wordLen}`).then( (response) => {
+  //   response.text().then( (text) => {
+  //     const regex = /[a-z]/g;
+  //     const letters = text.match(regex);
+  //     const div = document.getElementById("random_letters");
+  //     for (let i = 0; i < letters.length; i++) {
+  //       div.children[i].innerHTML = letters[i];
+  //     }
+  //   });
+  // });
+  fetch(`http://localhost:5001/game-letters`).then( (response) => {
     response.text().then( (text) => {
       const regex = /[a-z]/g;
       const letters = text.match(regex);

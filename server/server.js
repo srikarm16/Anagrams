@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const cookie = require("cookie");
 const mongoose = require("mongoose");
 const User = require("./models/User");
+const Game = require("./models/Game");
 const cookieParser = require('cookie-parser');
 
 const { wordsInit, isValidWord, getScrambledLetters } = require('./words.js');
@@ -20,6 +21,23 @@ const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, { /* options */ });
 const port = 5001;
+
+const getGame = async () => {
+  let games = await Game.find({});
+  if (games.length === 0) {
+    games.push(await Game.create({
+      players: [],
+      gameState: "ready",
+      letters: [],
+    }));
+  }
+  return games[0];
+}
+let game;
+getGame().then((g) => {
+  game = g;
+  console.log(g);
+});
 
 const corsOptions = {
   origin: "http://localhost:5500",
@@ -55,6 +73,8 @@ io.on("connection", async (socket) => {
     });
 
     if (allReady) {
+      game.letters = getScrambledLetters(6);
+      await game.save();
       socket.broadcast.emit("game_start");
     }
   });
@@ -79,6 +99,10 @@ app.get("/generate", (req, res) => {
   const scrambledLetters = getScrambledLetters(parseInt(len));
   res.send(scrambledLetters);
 });
+
+app.get("/game-letters", (req, res) => {
+  res.send(game.letters);
+})
 
 app.get("/check", (req, res) => {
   const word = req.query.word;
@@ -115,6 +139,8 @@ app.post("/create_user", async (req, res) => {
       name: name,
     });
     io.sockets.emit("new_user", newUser);
+    game.players.push(newUser._id);
+    await game.save();
   } catch(err) {
     res.status(401);
   }

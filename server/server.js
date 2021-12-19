@@ -104,6 +104,40 @@ app.get("/game-letters", (req, res) => {
   res.send(game.letters);
 })
 
+app.post("/submit_word", async (req, res) => {
+  const word = req.body.word;
+  const validWord = isValidWord(word);
+  if (!validWord) {
+    return res.json({
+      valid: false,
+    });
+  }
+  const user = await User.findOne({
+    _id: req.cookies.id,
+  });
+  if (user.words.includes(word)) {
+    return res.json({
+      valid: true,
+      alreadyUsed: true,
+    });
+  }
+  const scoreChange = 400;
+  user.score += scoreChange;
+  user.words.push(word);
+  await user.save();
+  io.sockets.emit("word_entered", {
+    scoreChange,
+    score: user.score,
+    _id: user._id,
+  });
+  return res.json({
+    valid: true,
+    alreadyUsed: false,
+    score: user.score,
+    scoreChange 
+  })
+})
+
 app.get("/check", (req, res) => {
   const word = req.query.word;
   res.send(isValidWord(word));

@@ -113,6 +113,27 @@ const getRandomLetters = (wordLen) => {
 }
 
 const updateScore = (word) => {
+  const data = {
+    word
+  };
+  fetch("http://localhost:5001/submit_word", {
+    credentials: "include",
+    method: "POST", 
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data),
+  }).then((data) => {
+    data.json().then((result) => {
+      if (!result.valid) {
+        console.log("Not a valid word");
+      } else if (result.alreadyUsed) {
+        console.log("Already used");
+      } else {
+        console.log("Score increased by " + result.scoreChange + " to " + result.score);
+      }
+    })
+  })
   console.log(word);
 }
 

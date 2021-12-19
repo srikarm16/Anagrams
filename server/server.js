@@ -90,10 +90,9 @@ app.get("/user_list", async (req, res) => {
   const data = {};
 
   const users = await User.find({});
-  // console.log(users);
-  // users.forEach((val, key) => {
-  //   data[key] = val;
-  // })
+  users.forEach((user) => {
+    data[user._id] = user;
+  })
   res.json(data);
 });
 
@@ -115,6 +114,7 @@ app.post("/create_user", async (req, res) => {
     res.json({
       name: name,
     });
+    io.sockets.emit("new_user", newUser);
   } catch(err) {
     res.status(401);
   }
@@ -123,21 +123,4 @@ app.post("/create_user", async (req, res) => {
 httpServer.listen(port, () => {
   console.log (`Server running on port ${port}`);
   wordsInit();
-
-  // const scrambledLetters = getScrambledLetters(10);
-  // console.log(`Scrambled: ${scrambledLetters}`);
 });
-
-const createNewUser = (socket) => {
-  numUsers++;
-  const newUser = {
-    ready: false,
-    number: userIds,
-    name: `User ${userIds}`,
-    connected: true
-  };
-  console.log(newUser, userIds);
-  socket.id = userIds;
-  users.set(userIds, newUser);
-  userIds++;
-};

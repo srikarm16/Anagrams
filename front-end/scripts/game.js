@@ -9,6 +9,7 @@ localStorage.setItem('seconds', localStorage.getItem('seconds') ?? 60);
 window.onload = function() {
   createDivs();
   getRandomLetters(maxLength);
+  getScore();
 
   const abc = "abcdefghijklmnopqrstuvwxyz";
   for (let i = 0; i < abc.length; i++)
@@ -72,6 +73,17 @@ window.onload = function() {
   setTimeout(timer, 500);
 }
 
+const getScore = () => {
+  const score = document.getElementById("score");
+  fetch("http://localhost:5001/get_score", {
+    credentials: "include",
+  }).then((data) => {
+    data.json().then((data) => {
+      score.innerHTML = `Score: ${data.score}`;
+    })
+  })
+}
+
 const createDivs = () => {
   const randomLetter = document.getElementById('random_letters');
   const guessLetter = document.getElementById('guesses');
@@ -114,6 +126,7 @@ const getRandomLetters = (wordLen) => {
 }
 
 const updateScore = (word) => {
+  const score = document.getElementById("score");
   const data = {
     word
   };
@@ -132,6 +145,7 @@ const updateScore = (word) => {
         console.log("Already used");
       } else {
         console.log("Score increased by " + result.scoreChange + " to " + result.score);
+        score.innerHTML = `Score: ${result.score}`;
       }
     })
   })
@@ -140,7 +154,8 @@ const updateScore = (word) => {
 
 const timer = () => {
   let seconds = localStorage.getItem('seconds');
-  const display = ((seconds > 10) ? '0:' : '0:0') + --seconds;
+  seconds = Math.max(seconds - 1, 0);
+  const display = ((seconds > 10) ? '0:' : '0:0') + seconds; 
   localStorage.setItem('seconds', seconds);
   if (seconds <= 10)
     document.getElementById('timer').classList.add('time-ending');

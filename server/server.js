@@ -54,6 +54,12 @@ app.use(bodyParser.urlencoded({extended: true}));
 io.on("connection", async (socket) => {
   var cookies = cookie.parse(socket.handshake.headers.cookie);    
   socket.id = cookies.id;
+  const user = await User.findOne({
+    _id: mongoose.Types.ObjectId(socket.id),
+  });
+  user.connected = true;
+  user.save();
+  socket.broadcast.emit("user_connected", user);
   socket.on("ready_update", async (ready) => {
     const user = await User.findOne({
       _id: mongoose.Types.ObjectId(socket.id),
@@ -151,6 +157,15 @@ app.get("/user_list", async (req, res) => {
     data[user._id] = user;
   })
   res.json(data);
+});
+
+app.get("/get_score", async (req, res) => {
+  const user = await User.findOne({
+    _id: req.cookies.id,
+  });
+  res.json({
+    score: user.score,
+  });
 });
 
 app.post("/create_user", async (req, res) => {

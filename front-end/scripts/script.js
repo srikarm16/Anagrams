@@ -1,4 +1,4 @@
-let ready = false;
+let ready = localStorage.getItem('ready') ?? false;
 
 function analyzeCookieForId(unformattedCookie) {
   const cookies = unformattedCookie.split(";");
@@ -29,8 +29,13 @@ window.onload = function() {
     });
 
     socket.on('user_disconnected', data => {
-      // do something
-      console.log(data);
+      removeUser(data);
+    });
+
+    socket.on('user_connected', data => {
+      if (data._id !== id) {
+        addUser(data._id, data.name, data.ready);
+      }
     });
 
     socket.on('ready_update', (data) => {
@@ -47,26 +52,17 @@ window.onload = function() {
       window.location.href = "game.html";
     });
 
-    const form = document.getElementById("random_letter_form");
+    // const form = document.getElementById("random_letter_form");
     const submissionForm = document.getElementById("submission");
     const readyButton = document.getElementById("ready_button");
 
-    updateReadyStatus(ready);
-
-    form.onsubmit = (e) => {
-        getLetters(e.target.length.value);
-        e.preventDefault();
-    }
-
-    submissionForm.onsubmit = (e) => {
-      displayVailidity(e.target.word.value);
-      e.preventDefault();
-    }
+    // form.onsubmit = (e) => {
+    //     getLetters(e.target.length.value);
+    //     e.preventDefault();
+    // }
 
     readyButton.onclick = (e) => {
-      ready = !ready;
-      document.getElementById('ready_status').classList.toggle('ready');
-      updateReadyStatus(ready);
+      updateReadyStatus(!ready);
       socket.emit("ready_update", ready);
     }
 }
@@ -79,46 +75,32 @@ const addUser = (id, name, ready) => {
   document.getElementById('users').appendChild(new_user);
 }
 
-const updateReadyStatus = (ready) => {
+const removeUser = (id) => {
+  const userElement = document.getElementById(`user-${id}`);
+  userElement.remove();
+}
+
+const updateReadyStatus = (newReady) => {
   const readyStatus = document.getElementById("ready_status");
-  if (ready) {
-    readyStatus.innerHTML = "Ready";
-    readyStatus.classList.add("ready");
-  } else {
-    readyStatus.innerHTML = "Not Ready";
-    readyStatus.classList.remove("ready");
-  }
+  ready = newReady;
+  readyStatus.innerHTML = ready ? 'Ready' : 'Not Ready';
+  readyStatus.classList.toggle('ready');
   localStorage.setItem("ready", ready);
 }
 
-const getLetters = (wordLen) => {
-  fetch(`http://localhost:5001/generate?length=${wordLen}`).then( (response) => {
-    response.text().then( (text) => {
-      const regex = /[a-z]/g;
-      const letters = text.match(regex);
-      const div = document.getElementById("random_letters");
-      div.innerHTML = '';
-      for (let i = 0; i < letters.length; i++) {
-        div.innerHTML += `<div id=letter${i + 1} class='letter'><p class='letter-info'>${letters[i]}</p></div>`;
-      }
-    });
-  });
-}
-
-const displayVailidity = (word) => {
-  fetch(`http://localhost:5001/check?word=${word}`).then( (response) => {
-    response.text().then( (text) => {
-      const isValid = (text == 'true');
-      const display = document.getElementById("submissionDisplay");
-      if (isValid) {
-        display.innerHTML = "Valid Word!";
-      }
-      else {
-        display.innerHTML = "Invalid Word!";
-      }
-    });
-  });
-}
+// const getLetters = (wordLen) => {
+//   fetch(`http://localhost:5001/generate?length=${wordLen}`).then( (response) => {
+//     response.text().then( (text) => {
+//       const regex = /[a-z]/g;
+//       const letters = text.match(regex);
+//       const div = document.getElementById("random_letters");
+//       div.innerHTML = '';
+//       for (let i = 0; i < letters.length; i++) {
+//         div.innerHTML += `<div id=letter${i + 1} class='letter'><p class='letter-info'>${letters[i]}</p></div>`;
+//       }
+//     });
+//   });
+// }
 
 const getListOfUsers = () => {
   fetch(`http://localhost:5001/user_list`).then( (response) => {
@@ -126,8 +108,11 @@ const getListOfUsers = () => {
       console.log("Object: ", object);
       Object.keys(object).forEach((key) => {
         if (key === id) {
+          if (!object[key].ready) {
+            document.getElementById("ready_status").classList.toggle("ready");
+          }
           updateReadyStatus(object[key].ready);
-        } else {
+        } else if (object[key].connected) {
           addUser(key, object[key].name, object[key].ready);
         }
       });

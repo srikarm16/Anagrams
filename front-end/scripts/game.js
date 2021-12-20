@@ -1,6 +1,7 @@
 const letters = [];
 const letterElements = [];
-const maxLength = 6;
+const maxLength = parseInt(localStorage.getItem("max_length"));
+console.log(localStorage.getItem("max_length"));
 let currIndex = 1;
 let lettersPressed = 0;
 const alpha = new Set();
@@ -20,10 +21,8 @@ window.onload = function() {
     letterElements.push(document.getElementById(`l${i + 1}`));
   }
 
-  // document.getElementById('l1').focus();
   letterElements[0].classList.add('selected');
 
-  // attachKeyupListenerToInputElements();
   document.addEventListener("keydown", (e) => {
     const letter = e.key;
 
@@ -103,16 +102,6 @@ const createDivs = () => {
 };
 
 const getRandomLetters = (wordLen) => {
-  // fetch(`http://localhost:5001/generate?length=${wordLen}`).then( (response) => {
-  //   response.text().then( (text) => {
-  //     const regex = /[a-z]/g;
-  //     const letters = text.match(regex);
-  //     const div = document.getElementById("random_letters");
-  //     for (let i = 0; i < letters.length; i++) {
-  //       div.children[i].innerHTML = letters[i];
-  //     }
-  //   });
-  // });
   fetch(`http://localhost:5001/game-letters`).then( (response) => {
     response.text().then( (text) => {
       const regex = /[a-z]/g;
@@ -163,30 +152,3 @@ const timer = () => {
   if (seconds > 0)
     setTimeout(timer, 1000);
 }
-
-// function attachKeyupListenerToInputElements(){
-//     var inputs = document.querySelectorAll('input');
-//     for (var i = 0; i < inputs.length; i += 1) {
-//         inputs[i].addEventListener("keyup", keyupHandler);
-//     }
-
-//     function keyupHandler(e) {
-
-//       if (lettersPressed < maxLength) {
-//         const letter = e.key;
-//         console.log(letter);
-//       }
-
-//       console.log(e);
-//       // const box = document.getElementById(`l${currIndex}`);
-//       // console.log(`CurrIndex: ${currIndex}`);
-//       // if (box.value.length == 1) {
-
-//         // if (currIndex !== maxLength) {
-//           // console.log(`CurrIndex: ${currIndex}`);
-//           // document.getElementById(`l${currIndex}`).focus();
-//         // }
-//         // console.log(this.value);
-//       // }
-//   }
-// }

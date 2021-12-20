@@ -2,6 +2,10 @@ const mongoose = require("mongoose");
 
 const gameSchema = mongoose.Schema({
     gameState: String,
+    wordLength: {
+        type: Number,
+        default: 3,
+    },
     letters: [String],
     startTime: {
         type: Date,

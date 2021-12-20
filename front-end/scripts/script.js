@@ -19,14 +19,22 @@ if (id ==  null) {
 }
 
 window.onload = function() {
+    const readyButton = document.getElementById("ready_button");
+    const wordLength = document.getElementById("length_value");
+    const spectator = document.getElementById('spectate');
+
     document.getElementById("my-user").innerHTML = `I'm ${localStorage.getItem("teamName")}`;
 
     const socket = io("http://localhost:5001", { transports: ['websocket'] });
     getListOfUsers();
-
-    socket.on("new_user", data => {
-      addUser(data._id, data.name, data.ready);
+    socket.on("connect", () => {
+      changeMode("playing", false);
     });
+
+    spectator.onclick = () => {
+      socket.disconnect();
+      changeMode("spectating", true);
+    }
 
     socket.on('user_disconnected', data => {
       removeUser(data);
@@ -48,18 +56,19 @@ window.onload = function() {
       }
     });
 
+    socket.on("word_length_changed", (newWordLength) => {
+      localStorage.setItem("max_length", wordLength.value);
+      wordLength.value = newWordLength;
+    });
+
     socket.on('game_start', () => {
+      localStorage.setItem("seconds", "60");
       window.location.href = "game.html";
     });
 
-    // const form = document.getElementById("random_letter_form");
-    const submissionForm = document.getElementById("submission");
-    const readyButton = document.getElementById("ready_button");
-
-    // form.onsubmit = (e) => {
-    //     getLetters(e.target.length.value);
-    //     e.preventDefault();
-    // }
+    wordLength.onchange = (e) => {
+      socket.emit("word_length_changed", e.target.value);
+    }
 
     readyButton.onclick = (e) => {
       updateReadyStatus(!ready);
@@ -67,12 +76,14 @@ window.onload = function() {
     }
 }
 
-const addUser = (id, name, ready) => {
-  let new_user = document.createElement('div');
-  new_user.id = `user-${id}`
-  new_user.textContent = name;
-  new_user.className = (ready ? "ready" : "");
-  document.getElementById('users').appendChild(new_user);
+const addUser = (newId, name, ready) => {
+  if (newId !== id) {
+    let new_user = document.createElement('div');
+    new_user.id = `user-${newId}`
+    new_user.textContent = name;
+    new_user.className = (ready ? "ready" : "");
+    document.getElementById('users').appendChild(new_user);
+  }
 }
 
 const removeUser = (id) => {
@@ -88,35 +99,48 @@ const updateReadyStatus = (newReady) => {
   localStorage.setItem("ready", ready);
 }
 
-// const getLetters = (wordLen) => {
-//   fetch(`http://localhost:5001/generate?length=${wordLen}`).then( (response) => {
-//     response.text().then( (text) => {
-//       const regex = /[a-z]/g;
-//       const letters = text.match(regex);
-//       const div = document.getElementById("random_letters");
-//       div.innerHTML = '';
-//       for (let i = 0; i < letters.length; i++) {
-//         div.innerHTML += `<div id=letter${i + 1} class='letter'><p class='letter-info'>${letters[i]}</p></div>`;
-//       }
-//     });
-//   });
-// }
+const removeLoading = () => {
+  document.getElementById("loading").style.display = "none";
+}
 
 const getListOfUsers = () => {
   fetch(`http://localhost:5001/user_list`).then( (response) => {
     response.json().then( (object) => {
-      console.log("Object: ", object);
-      Object.keys(object).forEach((key) => {
+      console.log(object);
+      document.getElementById("length_value").value = object.wordLength;
+      localStorage.setItem("max_length", object.wordLength);
+      const users = object.users;
+      Object.keys(users).forEach((key) => {
         if (key === id) {
-          if (!object[key].ready) {
+          if (!users[key].ready) {
             document.getElementById("ready_status").classList.toggle("ready");
           }
-          updateReadyStatus(object[key].ready);
-        } else if (object[key].connected) {
-          addUser(key, object[key].name, object[key].ready);
+          updateReadyStatus(users[key].ready);
+        } else if (users[key].connected) {
+          addUser(key, users[key].name, users[key].ready);
         }
       });
+      removeLoading();
     });
+  });
+}
+
+const changeMode = (mode, should_change_location) => {
+  const data = {
+    gameMode: mode,
+  }
+  fetch("http://localhost:5001/change_mode", {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data),
+  }).then((data) => {
+    data.text().then((data) => {
+      if (should_change_location)
+        window.location.href = 'spectator.html';
+    })
   });
 }
 

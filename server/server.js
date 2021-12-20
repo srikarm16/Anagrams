@@ -52,14 +52,28 @@ app.use(bodyParser.urlencoded({extended: true}));
 // app.use(express.urlencoded({extended: true}));
 
 io.on("connection", async (socket) => {
-  var cookies = cookie.parse(socket.handshake.headers.cookie);    
-  socket.id = cookies.id;
-  const user = await User.findOne({
-    _id: mongoose.Types.ObjectId(socket.id),
-  });
-  user.connected = true;
-  user.save();
-  socket.broadcast.emit("user_connected", user);
+  var cookies = cookie.parse(socket.handshake.headers.cookie); 
+  let user;
+  if (cookies) {
+    socket.id = cookies.id;
+     user = await User.findOne({
+      _id: mongoose.Types.ObjectId(socket.id),
+    });
+    if (!user) {
+      socket.disconnect();
+      return;
+    }
+    user.connected = true;
+    user.save();
+  }
+  else {
+    socket.disconnect();
+    return;
+  }
+
+  if (user.gameMode === "playing") {
+    socket.broadcast.emit("user_connected", user);
+  }
   socket.on("ready_update", async (ready) => {
     const user = await User.findOne({
       _id: mongoose.Types.ObjectId(socket.id),
@@ -73,17 +87,31 @@ io.on("connection", async (socket) => {
 
     const users = await User.find({});
     let allReady = true;
-    users.forEach((entry) => {
+    users.forEach(async (entry) => {
       if (entry.ready !== true)
         allReady = false;
     });
 
+
     if (allReady) {
-      game.letters = getScrambledLetters(6);
+      game.players = [];
+      for (let i = 0; i < users.length; i++) {
+        users[i].score = 0;
+        users[i].words = [];
+        await users[i].save();
+        game.players.push(users[i]._id);
+      }
+      game.letters = getScrambledLetters(game.wordLength);
       await game.save();
       socket.broadcast.emit("game_start");
     }
   });
+
+  socket.on("word_length_changed", async (wordLength) => {
+    game.wordLength = wordLength;
+    await game.save();
+    socket.broadcast.emit("word_length_changed", wordLength);
+  }) 
 
   socket.on("disconnect", async () => {
     try {
@@ -150,12 +178,19 @@ app.get("/check", (req, res) => {
 });
 
 app.get("/user_list", async (req, res) => {
-  const data = {};
+  const data = {
+    wordLength: game.wordLength,
+    users: {
+    },
+  };
 
   const users = await User.find({});
   users.forEach((user) => {
-    data[user._id] = user;
-  })
+    if (user.connected && user.gameMode === "playing") {
+      data.users[user._id] = user;
+    }
+  });
+
   res.json(data);
 });
 
@@ -166,6 +201,19 @@ app.get("/get_score", async (req, res) => {
   res.json({
     score: user.score,
   });
+});
+
+app.post("/change_mode", async (req, res) => {
+  const user = await User.findOne({
+    _id: mongoose.Types.ObjectId(req.cookies.id),
+  });
+  if (req.body.gameMode === "playing" && user.gameMode === "spectating") {
+    io.sockets.emit("user_connected", user);
+  }
+
+  user.gameMode = req.body.gameMode;
+  await user.save();
+  res.send("successful");
 });
 
 app.post("/create_user", async (req, res) => {
@@ -186,7 +234,6 @@ app.post("/create_user", async (req, res) => {
     res.json({
       name: name,
     });
-    io.sockets.emit("new_user", newUser);
     game.players.push(newUser._id);
     await game.save();
   } catch(err) {

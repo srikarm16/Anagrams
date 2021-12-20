@@ -4,7 +4,7 @@ const maxLength = 6;
 let currIndex = 1;
 let lettersPressed = 0;
 const alpha = new Set();
-let seconds = 60;
+localStorage.setItem('seconds', localStorage.getItem('seconds') ?? 60);
 
 window.onload = function() {
   createDivs();
@@ -68,7 +68,8 @@ window.onload = function() {
 
 
   // Timer Start
-  setTimeout(timer, 5000);
+  // setTimeout(timer, 5000);
+  setTimeout(timer, 500);
 }
 
 const createDivs = () => {
@@ -138,7 +139,9 @@ const updateScore = (word) => {
 }
 
 const timer = () => {
+  let seconds = localStorage.getItem('seconds');
   const display = ((seconds > 10) ? '0:' : '0:0') + --seconds;
+  localStorage.setItem('seconds', seconds);
   if (seconds <= 10)
     document.getElementById('timer').classList.add('time-ending');
   document.getElementById('timer').innerHTML = display;

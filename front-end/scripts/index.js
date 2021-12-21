@@ -17,7 +17,7 @@ const createUser = (playing, change_location) => {
     console.log(name);
     localStorage.setItem('teamName', name);
     const data = { name, gameMode: (playing ? "playing" : "spectating")};
-    fetch("http://localhost:5001/create_user", 
+    fetch(`${backend_website}/create_user`, 
     {
       method: "POST", 
       headers: {

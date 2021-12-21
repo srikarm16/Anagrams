@@ -30,6 +30,11 @@ const gameSchema = mongoose.Schema({
         score: Number,
         words: [String],
     },
+    playerRankings: [{
+        _id: mongoose.Types.ObjectId,
+        name: String,
+        score: Number,
+    }],
 });
 
 const Game = mongoose.model('Game', gameSchema);

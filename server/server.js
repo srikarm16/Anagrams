@@ -51,6 +51,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
 io.on("connection", async (socket) => {
+  console.log(socket.handshake.headers.cookie);
   var cookies = cookie.parse(socket.handshake.headers.cookie); 
   let user;
   if (cookies) {
@@ -132,6 +133,16 @@ io.on("connection", async (socket) => {
   });
 });
 
+app.get("/getdatetimejson", (req, res) => {
+  const clientTime = req.query.ct;
+  const serverTimestamp = (new Date()).getTime();
+  const serverClientRequestDiffTime = serverTimestamp - clientTime;
+  res.json({
+    diff: serverClientRequestDiffTime,
+    serverTimestamp,
+  });
+})
+
 
 app.get("/generate", (req, res) => {
   const len = req.query.length;
@@ -173,7 +184,8 @@ app.post("/submit_word", async (req, res) => {
     valid: true,
     alreadyUsed: false,
     score: user.score,
-    scoreChange 
+    scoreChange,
+    word 
   })
 })
 
@@ -221,6 +233,7 @@ app.post("/game_done", async (req, res) => {
     game.first = players[0];
     game.second = players[1];
     game.third = players[2];
+    game.playerRankings = players;
     game.players = players.map((player) => player._id);
     await game.save();
     io.sockets.emit("game_done");
@@ -274,6 +287,7 @@ app.get("/game_results", async (req, res) => {
     first: game.first,
     second: game.second,
     third: game.third,
+    overall: game.playerRankings,
     you: user,
   };
   for (let i = 0; i < game.players; i++) {

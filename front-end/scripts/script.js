@@ -19,6 +19,25 @@ if (id ==  null) {
   window.location.href = "index.html"
 }
 
+const getServerOffset = (onDone) => {
+  let serverOffset = 0;
+  var clientTimestamp = (new Date()).valueOf();
+  $.getJSON(`${backend_website}/getdatetimejson/?ct=`+clientTimestamp, function( data ) {
+      var nowTimeStamp = (new Date()).valueOf();
+      var serverClientRequestDiffTime = data.diff;
+      var serverTimestamp = data.serverTimestamp;
+      var serverClientResponseDiffTime = nowTimeStamp - serverTimestamp;
+      var responseTime = (serverClientRequestDiffTime - nowTimeStamp + clientTimestamp - serverClientResponseDiffTime )/2
+
+      serverOffset = responseTime;
+      console.log("server offset: ", serverOffset);
+      console.log(responseTime);
+      if (onDone) 
+        onDone(serverOffset);
+  });
+  return serverOffset;
+}
+
 window.onload = function() {
     const readyButton = document.getElementById("ready_button");
     const wordLength = document.getElementById("length_value");
@@ -26,7 +45,7 @@ window.onload = function() {
 
     document.getElementById("my-user").innerHTML = `I'm ${localStorage.getItem("teamName")}`;
 
-    const socket = io("http://localhost:5001", { transports: ['websocket'] });
+    const socket = io(`${backend_website}`, { transports: ['websocket'] });
     socket.on("connect", () => {
       changeMode("playing", false);
       getListOfUsers();
@@ -64,8 +83,16 @@ window.onload = function() {
 
     socket.on('game_start', (endTimeMillis) => {
       localStorage.setItem("seconds", "60");
-      localStorage.setItem("endTime", endTimeMillis);
-      window.location.href = "game.html";
+      getServerOffset((serverOffset) => {
+        console.log(serverOffset);
+        localStorage.setItem("endTime", endTimeMillis - serverOffset);
+        // localStorage.setItem("endTime", endTimeMillis);
+        socket.disconnect();
+        window.location.href = "game.html";
+      })
+      // localStorage.setItem("endTime", endTimeMillis);
+      // socket.disconnect();
+      // window.location.href = "game.html";
     });
 
     wordLength.onchange = (e) => {
@@ -110,7 +137,7 @@ const removeLoading = () => {
 }
 
 const getListOfUsers = () => {
-  fetch(`http://localhost:5001/user_list`).then( (response) => {
+  fetch(`${backend_website}/user_list`).then( (response) => {
     response.json().then( (object) => {
       console.log(object);
       document.getElementById("length_value").value = object.wordLength;
@@ -142,7 +169,7 @@ const changeMode = (mode, should_change_location) => {
   const data = {
     gameMode: mode,
   }
-  fetch("http://localhost:5001/change_mode", {
+  fetch(`${backend_website}/change_mode`, {
     method: "POST",
     credentials: "include",
     headers: {

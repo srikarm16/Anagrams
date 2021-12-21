@@ -4,7 +4,7 @@ const userSet = new Set();
 let maxScore = 0;
 
 window.onload = () => {
-  const socket = io("http://localhost:5001", { transports: ['websocket'] });
+  const socket = io(`${backend_website}`, { transports: ['websocket'] });
 
   socket.on("connect", () => {
     getUsersInGame();
@@ -99,7 +99,7 @@ window.onload = () => {
 }
 
 const getUsersInGame = () => {
-  fetch("http://localhost:5001/game_users", {
+  fetch(`${backend_website}/game_users`, {
     credentials: "include",
   }).then((data) => {
     data.json().then((object) => {

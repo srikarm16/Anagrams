@@ -4,6 +4,8 @@ const maxLength = parseInt(localStorage.getItem("max_length"));
 console.log(localStorage.getItem("max_length"));
 let currIndex = 1;
 let lettersPressed = 0;
+let score = 0;
+let increment = 0;
 const alpha = new Set();
 localStorage.setItem('seconds', localStorage.getItem('seconds') ?? 60);
 
@@ -101,7 +103,7 @@ window.onload = function() {
 
 const getScore = () => {
   const score = document.getElementById("score");
-  fetch("http://localhost:5001/get_score", {
+  fetch(`${backend_website}/get_score`, {
     credentials: "include",
   }).then((data) => {
     data.json().then((data) => {
@@ -129,7 +131,7 @@ const createDivs = () => {
 };
 
 const getRandomLetters = (wordLen) => {
-  fetch(`http://localhost:5001/game-letters`).then( (response) => {
+  fetch(`${backend_website}/game-letters`).then( (response) => {
     response.text().then( (text) => {
       const regex = /[a-z]/g;
       const letters = text.match(regex);
@@ -147,11 +149,11 @@ const getRandomLetters = (wordLen) => {
 }
 
 const updateScore = (word) => {
-  const score = document.getElementById("score");
+  // const score = document.getElementById("score");
   const data = {
     word
   };
-  fetch("http://localhost:5001/submit_word", {
+  fetch(`${backend_website}/submit_word`, {
     credentials: "include",
     method: "POST", 
     headers: {
@@ -166,11 +168,38 @@ const updateScore = (word) => {
         console.log("Already used");
       } else {
         console.log("Score increased by " + result.scoreChange + " to " + result.score);
-        score.innerHTML = `Score: ${result.score}`;
+        // score.innerHTML = `Score: ${result.score}`;
+        score = result.score;
+        const curr = +document.getElementById("score").innerText.substring("Score: ".length);
+        increment = (score - curr)/200;
+        animateScoreIncrease(result.scoreChange, result.word);
       }
     })
   })
   console.log(word);
+}
+
+const animateScoreIncreaseCounter = () => {
+  const target = score;
+  const scoreElem = document.getElementById("score");
+  let curr = +scoreElem.innerText.substring("Score: ".length);
+  if (curr < target) {
+    curr = Math.ceil(curr + increment);
+    scoreElem.innerText = `Score: ${curr}`;
+    setTimeout(animateScoreIncreaseCounter, 1);
+  } else {
+    curr = target;
+    scoreElem.innerText = `Score: ${curr}`;
+  }
+}
+
+const animateScoreIncrease = (scoreChange, word) => {
+  const guesses = document.getElementById("guesses");
+  const animateDiv = document.createElement("p");
+  animateDiv.classList.add("score_change");
+  animateDiv.innerText = `${word.toUpperCase()}(+${scoreChange})`;
+  guesses.appendChild(animateDiv);
+  animateScoreIncreaseCounter();
 }
 
 const timer = () => {
@@ -188,7 +217,7 @@ const timer = () => {
     setTimeout(timer, (secondsRaw - Math.floor(secondsRaw)) * 1000);
   else {
     // stop game
-    fetch("http://localhost:5001/game_done", {
+    fetch(`${backend_website}/game_done`, {
       credentials: "include",
       method: "POST",
     }).then(() => {

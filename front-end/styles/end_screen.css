@@ -77,3 +77,18 @@ body {
 p {
   margin: 0;
 }
+
+#first::before {
+  content: url("../imgs/first.png");
+  text-align: center;
+}
+
+#second::before {
+  content: url("../imgs/second.png");
+  text-align: center;
+}
+
+#third::before {
+  content: url("../imgs/third.png");
+  text-align: center;
+}

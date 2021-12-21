@@ -7,7 +7,39 @@ let lettersPressed = 0;
 const alpha = new Set();
 localStorage.setItem('seconds', localStorage.getItem('seconds') ?? 60);
 
+const timeRemaining = (endTime) => {
+  const time = luxon.DateTime.now().until(luxon.DateTime.fromMillis(+endTime)).length('seconds');
+  if (!time) {
+    return 0;
+  }
+  return time;
+}
+let windowLoaded = false;
+let countdownTimerStarted = true;
+
+const countdownTimer = () => {
+  let remainingTime = timeRemaining(localStorage.getItem("endTime"));
+  if (windowLoaded) {
+    const countdownElem = document.getElementById("countdown");
+    countdownElem.innerText = Math.floor(remainingTime - 60);
+  }
+  if (remainingTime > 60) {
+    setTimeout(countdownTimer, (remainingTime - Math.floor(remainingTime)) * 1000);
+  } else {
+    if (windowLoaded) {
+      const waiter = document.getElementById("loader");
+      waiter.style.display = "none";
+      timer();
+    } else {
+      countdownTimerStarted = false;
+    }
+  }
+}
+
+countdownTimer();
+
 window.onload = function() {
+  windowLoaded = true;
   createDivs();
   getRandomLetters(maxLength);
   getScore();
@@ -69,7 +101,7 @@ window.onload = function() {
 
   // Timer Start
   // setTimeout(timer, 5000);
-  setTimeout(timer, 500);
+  // setTimeout(timer, 500);
 }
 
 const getScore = () => {
@@ -110,6 +142,11 @@ const getRandomLetters = (wordLen) => {
       for (let i = 0; i < letters.length; i++) {
         div.children[i].innerHTML = letters[i];
       }
+      if (!countdownTimerStarted) {
+        const waiter = document.getElementById("loader");
+        waiter.style.display = "none";
+        timer();
+      }
     });
   });
 }
@@ -142,13 +179,20 @@ const updateScore = (word) => {
 }
 
 const timer = () => {
-  let seconds = localStorage.getItem('seconds');
-  seconds = Math.max(seconds - 1, 0);
-  const display = ((seconds > 10) ? '0:' : '0:0') + seconds; 
-  localStorage.setItem('seconds', seconds);
+  const secondsRaw = timeRemaining(localStorage.getItem("endTime"));
+  const seconds = Math.ceil(secondsRaw);
+  let minuteHand = 0;
+  if (seconds >= 60) {
+    minuteHand = seconds / 60;
+  }
+  const display = minuteHand + ((seconds > 10) ? ':' : ':0') + (seconds % 60); 
   if (seconds <= 10)
     document.getElementById('timer').classList.add('time-ending');
   document.getElementById('timer').innerHTML = display;
   if (seconds > 0)
-    setTimeout(timer, 1000);
+    setTimeout(timer, (secondsRaw - Math.floor(secondsRaw)) * 1000);
+  else {
+    // stop game
+    window.location.href = "end_screen.html";
+  }
 }

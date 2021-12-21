@@ -8,6 +8,7 @@ const mongoose = require("mongoose");
 const User = require("./models/User");
 const Game = require("./models/Game");
 const cookieParser = require('cookie-parser');
+const luxon = require("luxon");
 
 const { wordsInit, isValidWord, getScrambledLetters } = require('./words.js');
 
@@ -98,14 +99,16 @@ io.on("connection", async (socket) => {
         if (users[i].connected && users[i].gameMode === "playing") {
           users[i].score = 0;
           users[i].words = [];
+          users[i].ready = false;
           await users[i].save();
           game.players.push(users[i]._id);
 
         }
       }
       game.letters = getScrambledLetters(game.wordLength);
+      game.endTime = luxon.DateTime.now().plus({minutes: 1, seconds: 10,}).toMillis();
       await game.save();
-      socket.broadcast.emit("game_start");
+      socket.broadcast.emit("game_start", game.endTime);
     }
   });
 

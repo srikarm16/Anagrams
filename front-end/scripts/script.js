@@ -62,8 +62,9 @@ window.onload = function() {
       wordLength.value = newWordLength;
     });
 
-    socket.on('game_start', () => {
+    socket.on('game_start', (endTimeMillis) => {
       localStorage.setItem("seconds", "60");
+      localStorage.setItem("endTime", endTimeMillis);
       window.location.href = "game.html";
     });
 

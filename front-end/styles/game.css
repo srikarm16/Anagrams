@@ -68,3 +68,20 @@ span > div {
   font-size: 24pt;
   margin-top: 1em;
 }
+
+.loader {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+}
+
+#countdown {
+  font-size: 50pt;
+  color: rgb(160, 157, 157);
+}

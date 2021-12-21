@@ -7,9 +7,9 @@ const gameSchema = mongoose.Schema({
         default: 3,
     },
     letters: [String],
-    startTime: {
-        type: Date,
-        default: undefined,
+    endTime: {
+        type: Number,
+        default: 0,
     },
     players: [mongoose.Types.ObjectId],
 });

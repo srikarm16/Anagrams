@@ -31,6 +31,7 @@ window.onload = () => {
   })
 
   socket.on("game_start", () => {
+    maxScore = 0;
     currentState = "playing";
   })
 

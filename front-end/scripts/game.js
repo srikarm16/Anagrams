@@ -97,11 +97,6 @@ window.onload = function() {
       letterElements[lettersPressed].classList.add("selected");
     }
   });
-
-
-  // Timer Start
-  // setTimeout(timer, 5000);
-  // setTimeout(timer, 500);
 }
 
 const getScore = () => {
@@ -193,6 +188,11 @@ const timer = () => {
     setTimeout(timer, (secondsRaw - Math.floor(secondsRaw)) * 1000);
   else {
     // stop game
-    window.location.href = "end_screen.html";
+    fetch("http://localhost:5001/game_done", {
+      credentials: "include",
+      method: "POST",
+    }).then(() => {
+      window.location.href = "end_screen.html";
+    });
   }
 }

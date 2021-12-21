@@ -1,5 +1,6 @@
 let currentState; // ready or plaing
 const users = [];
+const userSet = new Set();
 let maxScore = 0;
 
 window.onload = () => {
@@ -10,14 +11,21 @@ window.onload = () => {
   });
 
   socket.on('user_connected', data => {
-      console.log(data);
       if (currentState === "ready") {
-        users.push(data);
-        addUser(data);
+        data.score = 0;
+        console.log(data, userSet);
+        if (!userSet.has(data._id)) {
+          users.push(data);
+          addUser(data);
+        }
       }
   });
 
   socket.on("user_disconnected", data => {
+    if (!userSet.has(data)) {
+      return;
+    }
+    userSet.delete(data);
     let deleteIndex = -1;
     for (let i = 0; i < users.length; i++) {
       if (users[i]._id == data) {
@@ -27,12 +35,19 @@ window.onload = () => {
     }
     if (currentState == "ready") {
       users.splice(deleteIndex, 1);
+      const rankElem = document.getElementById(`${data}`);
+      rankElem.remove();
     }
   })
 
   socket.on("game_start", () => {
     maxScore = 0;
     currentState = "playing";
+  })
+
+  socket.on("game_done", () => {
+    currentState = "ready";
+    // window.location.href = "end_screen.html";
   })
 
   socket.on("word_entered", data => {
@@ -91,17 +106,26 @@ const getUsersInGame = () => {
       console.log(object);
       currentState = object.gameState;
       Object.keys(object.users).forEach((key) => {
-        users.push(object.users[key]);
+        const val = object.users[key];
+        if (currentState === "ready") {
+          val.score = 0;
+        }
+        users.push(val);
       });
       users.sort((a, b) => b.score - a.score)
-      console.log(users);
-      maxScore = users[0].score;
+      if (users.length !== 0) {
+        maxScore = users[0].score;
+      }
       users.forEach((user, index) => addUser(user, index));
     });
   })
 }
 
 const addUser = (user, index) => {
+  if (userSet.has(user._id)) {
+    return;
+  }
+  userSet.add(user._id);
   const ranking = document.getElementById('ranking');
 
   const rank_elem = document.createElement('div');

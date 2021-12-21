@@ -21,7 +21,7 @@ const countdownTimer = () => {
   let remainingTime = timeRemaining(localStorage.getItem("endTime"));
   if (windowLoaded) {
     const countdownElem = document.getElementById("countdown");
-    countdownElem.innerText = Math.floor(remainingTime - 60);
+    countdownElem.innerText = Math.ceil(remainingTime - 60);
   }
   if (remainingTime > 60) {
     setTimeout(countdownTimer, (remainingTime - Math.floor(remainingTime)) * 1000);
@@ -183,13 +183,13 @@ const timer = () => {
   const seconds = Math.ceil(secondsRaw);
   let minuteHand = 0;
   if (seconds >= 60) {
-    minuteHand = seconds / 60;
+    minuteHand = Math.floor(seconds / 60);
   }
   const display = minuteHand + ((seconds > 10) ? ':' : ':0') + (seconds % 60); 
   if (seconds <= 10)
     document.getElementById('timer').classList.add('time-ending');
   document.getElementById('timer').innerHTML = display;
-  if (seconds > 0)
+  if (secondsRaw > 0)
     setTimeout(timer, (secondsRaw - Math.floor(secondsRaw)) * 1000);
   else {
     // stop game

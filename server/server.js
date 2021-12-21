@@ -106,7 +106,7 @@ io.on("connection", async (socket) => {
         }
       }
       game.letters = getScrambledLetters(game.wordLength);
-      game.endTime = luxon.DateTime.now().plus({minutes: 1, seconds: 10,}).toMillis();
+      game.endTime = luxon.DateTime.now().plus({minutes: 1, seconds: 6,}).toMillis();
       await game.save();
       socket.broadcast.emit("game_start", game.endTime);
     }

@@ -1,4 +1,5 @@
 let ready = localStorage.getItem('ready') ?? false;
+const allUsers = new Set();
 
 function analyzeCookieForId(unformattedCookie) {
   const cookies = unformattedCookie.split(";");
@@ -26,9 +27,9 @@ window.onload = function() {
     document.getElementById("my-user").innerHTML = `I'm ${localStorage.getItem("teamName")}`;
 
     const socket = io("http://localhost:5001", { transports: ['websocket'] });
-    getListOfUsers();
     socket.on("connect", () => {
       changeMode("playing", false);
+      getListOfUsers();
     });
 
     spectator.onclick = () => {
@@ -57,7 +58,7 @@ window.onload = function() {
     });
 
     socket.on("word_length_changed", (newWordLength) => {
-      localStorage.setItem("max_length", wordLength.value);
+      localStorage.setItem("max_length", newWordLength);
       wordLength.value = newWordLength;
     });
 
@@ -77,7 +78,8 @@ window.onload = function() {
 }
 
 const addUser = (newId, name, ready) => {
-  if (newId !== id) {
+  if (newId !== id && !allUsers.has(newId)) {
+    allUsers.add(newId);
     let new_user = document.createElement('div');
     new_user.id = `user-${newId}`
     new_user.textContent = name;
@@ -87,8 +89,11 @@ const addUser = (newId, name, ready) => {
 }
 
 const removeUser = (id) => {
-  const userElement = document.getElementById(`user-${id}`);
-  userElement.remove();
+  if (allUsers.has(id)) {
+    allUsers.delete(id);
+    const userElement = document.getElementById(`user-${id}`);
+    userElement.remove();
+  }
 }
 
 const updateReadyStatus = (newReady) => {
@@ -109,6 +114,13 @@ const getListOfUsers = () => {
       console.log(object);
       document.getElementById("length_value").value = object.wordLength;
       localStorage.setItem("max_length", object.wordLength);
+      // if (object.gameState !== "ready") {
+      //   if (object.gameState === "playing") {
+      //     window.location.href = "game.html";
+      //   } else {
+      //     window.location.href = "end_screen.html";
+      //   }
+      // }
       const users = object.users;
       Object.keys(users).forEach((key) => {
         if (key === id) {

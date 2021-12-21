@@ -40,7 +40,7 @@ getGame().then((g) => {
 });
 
 const corsOptions = {
-  origin: "http://localhost:5500",
+  origin: ["http://localhost:5500", "http://192.168.1.213:5500"],
   credentials:true,            //access-control-allow-credentials:true
   optionSuccessStatus:200,
 }
@@ -48,8 +48,6 @@ app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
-// app.use(express.json());
-// app.use(express.urlencoded({extended: true}));
 
 io.on("connection", async (socket) => {
   var cookies = cookie.parse(socket.handshake.headers.cookie); 
@@ -88,18 +86,22 @@ io.on("connection", async (socket) => {
     const users = await User.find({});
     let allReady = true;
     users.forEach(async (entry) => {
-      if (entry.ready !== true)
+      if (entry.connected && entry.gameMode === "playing" && entry.ready !== true)
         allReady = false;
     });
 
 
     if (allReady) {
       game.players = [];
+      game.gameState = "playing";
       for (let i = 0; i < users.length; i++) {
-        users[i].score = 0;
-        users[i].words = [];
-        await users[i].save();
-        game.players.push(users[i]._id);
+        if (users[i].connected && users[i].gameMode === "playing") {
+          users[i].score = 0;
+          users[i].words = [];
+          await users[i].save();
+          game.players.push(users[i]._id);
+
+        }
       }
       game.letters = getScrambledLetters(game.wordLength);
       await game.save();
@@ -177,9 +179,34 @@ app.get("/check", (req, res) => {
   res.send(isValidWord(word));
 });
 
+app.get("/game_users", async (req, res) => {
+  const data = {
+    wordLength: game.wordLength,
+    gameState: game.gameState,
+    users: {
+    },
+  };
+  if (game.gameState === "ready") {
+    const users = await User.find({});
+    users.forEach((user) => {
+      if (user.connected && user.gameMode === "playing") {
+        data.users[user._id] = user;
+      }
+    });
+  } else {
+    for (let i = 0; i < game.players.length; i++) {
+      data.users[game.players[i]] = await User.findOne({
+        _id: game.players[i],
+      });
+    }
+  }
+  res.json(data);
+})
+
 app.get("/user_list", async (req, res) => {
   const data = {
     wordLength: game.wordLength,
+    gameState: game.gameState,
     users: {
     },
   };

@@ -206,6 +206,28 @@ app.get("/game_users", async (req, res) => {
   res.json(data);
 })
 
+app.post("/game_done", async (req, res) => {
+  if (game.gameState === "playing") {
+    game.gameState = "ready";
+    const players = [];
+    for (let i = 0; i < game.players.length; i++) {
+      const user = await User.findOne({
+        _id: game.players[i]
+      });
+      players.push(user);
+    }
+    players.sort((a, b) => b.score - a.score);
+    console.log(players);
+    game.first = players[0];
+    game.second = players[1];
+    game.third = players[2];
+    game.players = players.map((player) => player._id);
+    await game.save();
+    io.sockets.emit("game_done");
+  }
+  res.send("Successful");
+})
+
 app.get("/user_list", async (req, res) => {
   const data = {
     wordLength: game.wordLength,
@@ -245,6 +267,23 @@ app.post("/change_mode", async (req, res) => {
   await user.save();
   res.send("successful");
 });
+
+app.get("/game_results", async (req, res) => {
+  const user = await User.findOne({_id: mongoose.Types.ObjectId(req.cookies.id)});
+  const data = {
+    first: game.first,
+    second: game.second,
+    third: game.third,
+    you: user,
+  };
+  for (let i = 0; i < game.players; i++) {
+    if (game.players[i] == user) {
+      data.position = i + 1;
+      break;
+    }
+  }
+  res.json(data);
+})
 
 app.post("/create_user", async (req, res) => {
   const name = req.body.name;

@@ -39,6 +39,10 @@ body {
   animation: score_anim 2s linear forwards;
 }
 
+.used_letter {
+  color: gray;
+}
+
 div > div {
   border: 2px solid rgba(0, 0, 0, 0.34);
   width: 2em;

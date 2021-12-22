@@ -2,6 +2,7 @@ const letters = [];
 let randomLettersMap = new Map();
 let currentLettersMap = new Map();
 const letterElements = [];
+const randomLetterElements = [];
 const maxLength = parseInt(localStorage.getItem("max_length"));
 console.log(localStorage.getItem("max_length"));
 let currIndex = 1;
@@ -89,14 +90,17 @@ window.onload = function() {
         }
 
         currentLettersMap.set(letters[lettersPressed - 1], currentLettersMap.get(letters[lettersPressed - 1]) - 1);
+        randomLettersMap.get(letters[lettersPressed - 1])[currentLettersMap.get(letters[lettersPressed - 1])].classList.remove("used_letter");
 
         letterElements[--lettersPressed].innerHTML = '';
         letters[lettersPressed] = '';
       }
     } else if (alpha.has(letter) && lettersPressed != maxLength) {
       const newLetterCount = (currentLettersMap.get(letter) ?? 0) + 1;
-      if (newLetterCount <= (randomLettersMap.get(letter) ?? 0)) {
+      console.log((randomLettersMap.get(letter) ?? []));
+      if (newLetterCount <= (randomLettersMap.get(letter) ?? []).length) {
         currentLettersMap.set(letter, newLetterCount);
+        randomLettersMap.get(letter)[newLetterCount - 1].classList.add("used_letter");
         letters[lettersPressed] = letter;
 
         if (lettersPressed < maxLength) {
@@ -108,6 +112,9 @@ window.onload = function() {
     }
     else if (letter === "Enter") {
       currentLettersMap.clear();
+      randomLetterElements.forEach((randomLetterElement) => {
+        randomLetterElement.classList.remove("used_letter");
+      })
       let word = '';
       for (let i = 0; i < lettersPressed; i++)
         word += letters[i];
@@ -166,8 +173,15 @@ const getRandomLetters = (wordLen) => {
       const div = document.getElementById("random_letters");
       for (let i = 0; i < letters.length; i++) {
         div.children[i].innerHTML = letters[i];
-        randomLettersMap.set(letters[i], (randomLettersMap.get(letters[i]) ?? 0) + 1);
+        randomLetterElements[i] = div.children[i];
+        let arr = randomLettersMap.get(letters[i]);
+        if (!arr) {
+          arr = [];
+          randomLettersMap.set(letters[i], arr);
+        }
+        arr.push(div.children[i]);
       }
+      console.log(randomLettersMap);
       if (!countdownTimerStarted) {
         const waiter = document.getElementById("loader");
         waiter.style.display = "none";
@@ -250,7 +264,7 @@ const timer = () => {
       credentials: "include",
       method: "POST",
     }).then(() => {
-      // window.location.href = "end_screen.html";
+      window.location.href = "end_screen.html";
     });
   }
 }

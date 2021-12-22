@@ -51,7 +51,10 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
 io.on("connection", async (socket) => {
-  console.log(socket.handshake.headers.cookie);
+  if (socket.handshake.headers.cookie === undefined) {
+    socket.disconnect();
+  }
+  // console.log(socket.handshake.headers.cookie);
   var cookies = cookie.parse(socket.handshake.headers.cookie); 
   let user;
   if (cookies) {

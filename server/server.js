@@ -299,6 +299,19 @@ app.get("/game_results", async (req, res) => {
   res.json(data);
 })
 
+app.get("/get_end_time", async (req, res) => {
+  if (game.gameState === "ready") {
+    res.json({
+      state: "ready",
+    })
+  } else {
+    res.json({
+      state: "playing", 
+      endTime: game.endTime,
+    });
+  }
+})
+
 app.post("/create_user", async (req, res) => {
   const name = req.body.name;
   const gameMode = req.body.gameMode;

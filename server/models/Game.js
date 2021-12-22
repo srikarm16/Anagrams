@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 
+// TODO: store current game to allow checking for correct localstorage values
 const gameSchema = mongoose.Schema({
     gameState: String,
     wordLength: {

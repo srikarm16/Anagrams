@@ -80,3 +80,22 @@ body {
     border-radius: 2em;
     transition: all 0.2s;
 }
+
+.timer-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+}
+
+#timer {
+    font-size: 30pt;
+    padding: 10px;
+    background-color: gray;
+    color: white;
+}
+
+#time-ending {
+    color: red;
+}

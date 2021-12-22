@@ -19,25 +19,6 @@ if (id ==  null) {
   window.location.href = "index.html"
 }
 
-const getServerOffset = (onDone) => {
-  let serverOffset = 0;
-  var clientTimestamp = (new Date()).valueOf();
-  $.getJSON(`${backend_website}/getdatetimejson/?ct=`+clientTimestamp, function( data ) {
-      var nowTimeStamp = (new Date()).valueOf();
-      var serverClientRequestDiffTime = data.diff;
-      var serverTimestamp = data.serverTimestamp;
-      var serverClientResponseDiffTime = nowTimeStamp - serverTimestamp;
-      var responseTime = (serverClientRequestDiffTime - nowTimeStamp + clientTimestamp - serverClientResponseDiffTime )/2
-
-      serverOffset = responseTime;
-      console.log("server offset: ", serverOffset);
-      console.log(responseTime);
-      if (onDone) 
-        onDone(serverOffset);
-  });
-  return serverOffset;
-}
-
 window.onload = function() {
     const readyButton = document.getElementById("ready_button");
     const wordLength = document.getElementById("length_value");
@@ -67,6 +48,7 @@ window.onload = function() {
     });
 
     socket.on('ready_update', (data) => {
+      localStorage.removeItem("endTime");
       if (data._id !== id) {
         if (data.ready) {
           document.getElementById(`user-${data._id}`).classList.add("ready");
@@ -127,6 +109,7 @@ const removeUser = (id) => {
 const updateReadyStatus = (newReady) => {
   const readyStatus = document.getElementById("ready_status");
   ready = newReady;
+  localStorage.removeItem("endTime");
   readyStatus.innerHTML = ready ? 'Ready' : 'Not Ready';
   readyStatus.classList.toggle('ready');
   localStorage.setItem("ready", ready);

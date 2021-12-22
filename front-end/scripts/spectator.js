@@ -3,6 +3,21 @@ const users = [];
 const userSet = new Set();
 let maxScore = 0;
 
+const timer = () => {
+  const secondsRaw = timeRemaining(localStorage.getItem("endTime"));
+  const seconds = Math.ceil(secondsRaw);
+  let minuteHand = 0;
+  if (seconds >= 60) {
+    minuteHand = Math.floor(seconds / 60);
+  }
+  const display = minuteHand + ((seconds >= 10) ? ':' : ':0') + (seconds % 60); 
+  if (seconds <= 10)
+    document.getElementById('timer').classList.add('time-ending');
+  document.getElementById('timer').innerHTML = display;
+  if (secondsRaw > 0)
+    setTimeout(timer, (secondsRaw - Math.floor(secondsRaw)) * 1000);
+}
+
 window.onload = () => {
   const socket = io(`${backend_website}`, { transports: ['websocket'] });
 
@@ -40,13 +55,19 @@ window.onload = () => {
     }
   })
 
-  socket.on("game_start", () => {
+  socket.on("game_start", (endTimeMillis) => {
     maxScore = 0;
     currentState = "playing";
+    // set endTimeMillis for current game
+    getServerOffset((serverOffset) => {
+      localStorage.setItem("endTime", endTimeMillis - serverOffset);
+      timer();
+    })
   })
 
   socket.on("game_done", () => {
     currentState = "ready";
+    localStorage.removeItem("endTime");
     // window.location.href = "end_screen.html";
   })
 
@@ -105,6 +126,21 @@ const getUsersInGame = () => {
     data.json().then((object) => {
       console.log(object);
       currentState = object.gameState;
+      if (currentState === "ready") {
+          localStorage.removeItem("endTime");
+          const timerElem = document.getElementById("timer");
+          timerElem.innerText = "Waiting for users to connect";
+          timerElem.classList.remove("time-ending");
+      } else {
+        if (!localStorage.getItem("endTime")) {
+          getServerOffset((serverOffset) => {
+            localStorage.setItem("endTime", endTimeMillis - serverOffset);
+            timer();
+          })
+        } else {
+          timer();
+        }
+      }
       Object.keys(object.users).forEach((key) => {
         const val = object.users[key];
         if (currentState === "ready") {

@@ -1,4 +1,6 @@
 const letters = [];
+let randomLettersMap = new Map();
+let currentLettersMap = new Map();
 const letterElements = [];
 const maxLength = parseInt(localStorage.getItem("max_length"));
 console.log(localStorage.getItem("max_length"));
@@ -9,15 +11,27 @@ let increment = 0;
 const alpha = new Set();
 localStorage.setItem('seconds', localStorage.getItem('seconds') ?? 60);
 
-const timeRemaining = (endTime) => {
-  const time = luxon.DateTime.now().until(luxon.DateTime.fromMillis(+endTime)).length('seconds');
-  if (!time) {
-    return 0;
-  }
-  return time;
-}
 let windowLoaded = false;
 let countdownTimerStarted = true;
+
+const updateEndTime = (onFinish) => {
+  fetch(`${backend_website}/get_end_time`, {
+    credentials: "include",
+  }).then((data) => {
+    data.json().then((data) => {
+      if (data.state === "ready") {
+        window.location.href = "ready.html";
+      } else {
+        getServerOffset((serverOffset) => {
+          localStorage.setItem("endTime", (data.endTime - serverOffset));
+        })
+      }
+      if (onFinish) {
+        onFinish();
+      }
+    })
+  })
+}
 
 const countdownTimer = () => {
   let remainingTime = timeRemaining(localStorage.getItem("endTime"));
@@ -38,7 +52,14 @@ const countdownTimer = () => {
   }
 }
 
-countdownTimer();
+if (!localStorage.getItem("endTime")) {
+  updateEndTime(() => {
+    countdownTimer();
+  });
+} else {
+  countdownTimer();
+}
+
 
 window.onload = function() {
   windowLoaded = true;
@@ -63,23 +84,30 @@ window.onload = function() {
     if (letter === 'Backspace') {
       if (lettersPressed !== 0) {
 
-      if (lettersPressed < maxLength) {
-        letterElements[lettersPressed].classList.remove('selected');
-      }
+        if (lettersPressed < maxLength) {
+          letterElements[lettersPressed].classList.remove('selected');
+        }
+
+        currentLettersMap.set(letters[lettersPressed - 1], currentLettersMap.get(letters[lettersPressed - 1]) - 1);
 
         letterElements[--lettersPressed].innerHTML = '';
         letters[lettersPressed] = '';
       }
     } else if (alpha.has(letter) && lettersPressed != maxLength) {
-      letters[lettersPressed] = letter;
+      const newLetterCount = (currentLettersMap.get(letter) ?? 0) + 1;
+      if (newLetterCount <= (randomLettersMap.get(letter) ?? 0)) {
+        currentLettersMap.set(letter, newLetterCount);
+        letters[lettersPressed] = letter;
 
-      if (lettersPressed < maxLength) {
-        letterElements[lettersPressed].classList.remove('selected');
+        if (lettersPressed < maxLength) {
+          letterElements[lettersPressed].classList.remove('selected');
+        }
+
+        letterElements[lettersPressed++].innerHTML = letter;
       }
-
-      letterElements[lettersPressed++].innerHTML = letter;
     }
     else if (letter === "Enter") {
+      currentLettersMap.clear();
       let word = '';
       for (let i = 0; i < lettersPressed; i++)
         word += letters[i];
@@ -138,6 +166,7 @@ const getRandomLetters = (wordLen) => {
       const div = document.getElementById("random_letters");
       for (let i = 0; i < letters.length; i++) {
         div.children[i].innerHTML = letters[i];
+        randomLettersMap.set(letters[i], (randomLettersMap.get(letters[i]) ?? 0) + 1);
       }
       if (!countdownTimerStarted) {
         const waiter = document.getElementById("loader");
@@ -209,7 +238,7 @@ const timer = () => {
   if (seconds >= 60) {
     minuteHand = Math.floor(seconds / 60);
   }
-  const display = minuteHand + ((seconds > 10) ? ':' : ':0') + (seconds % 60); 
+  const display = minuteHand + ((seconds >= 10) ? ':' : ':0') + (seconds % 60); 
   if (seconds <= 10)
     document.getElementById('timer').classList.add('time-ending');
   document.getElementById('timer').innerHTML = display;

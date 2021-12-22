@@ -250,7 +250,7 @@ const timer = () => {
       credentials: "include",
       method: "POST",
     }).then(() => {
-      window.location.href = "end_screen.html";
+      // window.location.href = "end_screen.html";
     });
   }
 }

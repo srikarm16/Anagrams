@@ -10,7 +10,8 @@ const timer = () => {
   if (seconds >= 60) {
     minuteHand = Math.floor(seconds / 60);
   }
-  const display = minuteHand + ((seconds >= 10) ? ':' : ':0') + (seconds % 60); 
+  let secondHand = seconds % 60;
+  const display = minuteHand + ((secondHand >= 10) ? ':' : ':0') + secondHand;
   if (seconds <= 10)
     document.getElementById('timer').classList.add('time-ending');
   document.getElementById('timer').innerHTML = display;

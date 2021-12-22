@@ -3,9 +3,15 @@
   font-family: 'Comfortaa', cursive;
 }
 
-body {
+html {
   width: 100%;
-  height: 100vh;
+  height: 100%;
+}
+
+body {
+  position: fixed;
+  width: 100%;
+  height: 100%;
   background: /*linear-gradient(217deg, rgba(255,0,0,.65), rgba(255,0,0,0.15) 70.71%); */
             /* linear-gradient(127deg, rgba(0,255,0,.5), rgba(0,255,0,0) 70.71%), */
             linear-gradient(217deg, rgba(220, 200, 255, 1), rgba(220, 200, 255, 0.15) 70.71%);
@@ -17,7 +23,7 @@ body {
 
 #guesses {
   position: relative;
-  width: 60%;
+  width: 200rem;
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -109,4 +115,74 @@ span > div {
 #countdown {
   font-size: 50pt;
   color: rgb(160, 157, 157);
+}
+
+@media (max-width: 764px) {
+  #guesses {
+    column-gap: 1.25em;
+  }
+
+  #random_letters {
+    margin-bottom: 4rem;
+  }
+
+  div > div {
+    border: 2px solid rgba(0, 0, 0, 0.34);
+    width: 1.8em;
+    height: 1.8em;
+    border-radius: 0.25em;
+    font-size: 18pt;
+  }
+
+  span > div {
+    font-size: 40pt;
+  }
+
+  #timer {
+    font-size: 56pt;
+    margin-bottom: 0.25em;
+  }
+
+}
+
+@media (max-width: 580px) {
+  #guesses {
+    column-gap: 1em;
+  }
+
+  span > div {
+    font-size: 25pt;
+  }
+
+  #timer {
+    font-size: 48pt;
+    margin-bottom: 0.25em;
+  }
+}
+
+@media (max-width: 380px) {
+  #random_letters {
+    column-gap: 2.5em;
+  }
+
+  div > div {
+    border: 2px solid rgba(0, 0, 0, 0.34);
+    width: 1.6em;
+    height: 1.6em;
+    border-radius: 0.25em;
+    font-size: 15pt;
+  }
+
+  span > div {
+    font-size: 21pt;
+  }
+
+  #timer {
+    font-size: 40pt;
+    margin-bottom: 0.25em;
+  }
+
+  #score {
+    font-size: 20pt;
+  }
 }

@@ -5,7 +5,7 @@ const gameSchema = mongoose.Schema({
     gameState: String,
     wordLength: {
         type: Number,
-        default: 3,
+        default: 6,
     },
     letters: [String],
     endTime: {

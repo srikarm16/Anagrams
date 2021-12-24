@@ -1,0 +1,57 @@
+.leaderboard-container {
+    padding: 4rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.leaderboard-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.2);
+    /* background-color: rgba(255, 255, 255, 0.2); */
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    border-radius: 1rem;
+}
+
+.rank {
+    width: 4rem;
+    font-size: 30pt;
+    color: black;
+}
+
+.team-name {
+    /* width: 14rem; */
+    flex-grow: 1;
+    color: rgb(0, 0, 94);
+    font-size: 24pt;
+}
+
+.score {
+    font-size: 26pt;
+    color: rgb(88, 88, 88);
+}
+
+@media (max-width: 450rem) {
+    .leaderboard-container {
+        padding: 2rem;
+    }
+    .rank {
+        width: 2rem;
+        font-size: 20pt;
+        color: black;
+    }
+
+    .team-name {
+        /* width: 14rem; */
+        flex-grow: 1;
+        color: rgb(0, 0, 94);
+        font-size: 18pt;
+    }
+
+    .score {
+        font-size: 19pt;
+        color: rgb(88, 88, 88);
+    }
+}

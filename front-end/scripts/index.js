@@ -1,14 +1,21 @@
-window.onload = function () {
-  const form = document.getElementById('enter_game_form');
+let playClicked = false;
+let spectatorClicked = false;
 
+window.onload = function () {
   document.getElementById('play').onclick = (e) => {
-    createUser(true, 'ready.html');
-    e.preventDefault();
+    if (!playClicked && !spectatorClicked) {
+      createUser(true, 'ready.html');
+      e.preventDefault();
+      playClicked = true;
+    }
   }
 
   document.getElementById('spectate').onclick = (e) => {
-    createUser(false, 'spectator.html');
-    e.preventDefault();
+    if (!spectatorClicked && !playClicked) {
+      createUser(false, 'spectator.html');
+      e.preventDefault();
+      spectatorClicked = true;
+    }
   }
 }
 
@@ -31,5 +38,4 @@ const createUser = (playing, change_location) => {
           window.location.href = change_location;
         });
       });
-
 }

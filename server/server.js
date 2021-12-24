@@ -12,6 +12,8 @@ const luxon = require("luxon");
 
 const { wordsInit, isValidWord, getScrambledLetters } = require('./words.js');
 
+const scoring = new Map([[3, 100], [4, 400], [5,800], [6,1400], [7, 2200], [8, 3200], [9, 6400], [10, 10_000]]);
+
 mongoose.connect('mongodb://localhost:27017/test').then(() => {
   console.log("Connected to Database");
 }).catch((err) => {
@@ -87,33 +89,8 @@ io.on("connection", async (socket) => {
       _id: socket.id,
       ready
     });
-
-    const users = await User.find({});
-    let allReady = true;
-    users.forEach(async (entry) => {
-      if (entry.connected && entry.gameMode === "playing" && entry.ready !== true)
-        allReady = false;
-    });
-
-
-    if (allReady) {
-      game.players = [];
-      game.gameState = "playing";
-      for (let i = 0; i < users.length; i++) {
-        if (users[i].connected && users[i].gameMode === "playing") {
-          users[i].score = 0;
-          users[i].words = [];
-          users[i].ready = false;
-          await users[i].save();
-          game.players.push(users[i]._id);
-
-        }
-      }
-      game.letters = getScrambledLetters(game.wordLength);
-      game.endTime = luxon.DateTime.now().plus({minutes: 1, seconds: 6,}).toMillis();
-      await game.save();
-      socket.broadcast.emit("game_start", game.endTime);
-    }
+    
+    await checkReadyAndStartGame(socket);
   });
 
   socket.on("word_length_changed", async (wordLength) => {
@@ -130,11 +107,56 @@ io.on("connection", async (socket) => {
       user.connected = false;
       await user.save();
       socket.broadcast.emit("user_disconnected", socket.id);
+      if(user.gameMode === "playing") {
+        await checkReadyAndStartGame(socket);
+      }
     } catch(err) {
       console.log("Disconnect error", err);
     }
   });
 });
+
+// ready -> start game
+// user disconnects to go to game
+// start game
+
+const checkReadyAndStartGame = async (socket) => {
+    if (game.gameState === "playing") {
+      return;
+    }
+    const users = await User.find({});
+    let allReady = true;
+    let numPlayers = 0;
+    users.forEach(async (entry) => {
+      if (entry.connected && entry.gameMode === "playing" && entry.ready !== true)
+        allReady = false;
+      if (entry.connected && entry.gameMode === "playing")
+        numPlayers++;
+    });
+
+    if (numPlayers === 0) {
+      return;
+    }
+    
+    if (allReady) {
+      game.players = [];
+      game.gameState = "playing";
+      for (let i = 0; i < users.length; i++) {
+        if (users[i].connected && users[i].gameMode === "playing") {
+          users[i].score = 0;
+          users[i].liveUpdateScore = 0;
+          users[i].words = [];
+          users[i].ready = false;
+          await users[i].save();
+          game.players.push(users[i]._id);
+        }
+      }
+      game.letters = getScrambledLetters(game.wordLength);
+      game.endTime = luxon.DateTime.now().plus({minutes: 1, seconds: 5}).toMillis();
+      await game.save();
+      socket.broadcast.emit("game_start", game.endTime);
+    }
+}
 
 app.get("/getdatetimejson", (req, res) => {
   const clientTime = req.query.ct;
@@ -174,8 +196,11 @@ app.post("/submit_word", async (req, res) => {
       alreadyUsed: true,
     });
   }
-  const scoreChange = 400;
+  const scoreChange = scoring.get(word.length);
   user.score += scoreChange;
+  const timeRemaining = luxon.DateTime.now().until(luxon.DateTime.fromMillis(game.endTime)).length('seconds');
+  if (timeRemaining > 15)
+    user.liveUpdateScore += scoreChange;
   user.words.push(word);
   await user.save();
   io.sockets.emit("word_entered", {
@@ -198,9 +223,11 @@ app.get("/check", (req, res) => {
 });
 
 app.get("/game_users", async (req, res) => {
+  console.log(game.gameState);
   const data = {
     wordLength: game.wordLength,
     gameState: game.gameState,
+    endTime: game.endTime,
     users: {
     },
   };
@@ -222,6 +249,7 @@ app.get("/game_users", async (req, res) => {
 })
 
 app.post("/game_done", async (req, res) => {
+  console.log("Is this being called");
   if (game.gameState === "playing") {
     game.gameState = "ready";
     const players = [];
@@ -323,6 +351,7 @@ app.post("/create_user", async (req, res) => {
   newUser.gameMode = gameMode;
   newUser.name = name;
   newUser.score = 0;
+  newUser.liveUpdateScore = 0;
   newUser.ready = false;
 
   newUser.connected = true;
@@ -333,7 +362,6 @@ app.post("/create_user", async (req, res) => {
     res.json({
       name: name,
     });
-    game.players.push(newUser._id);
     await game.save();
   } catch(err) {
     res.status(401);

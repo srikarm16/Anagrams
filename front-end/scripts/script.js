@@ -20,11 +20,16 @@ if (id ==  null) {
 }
 
 window.onload = function() {
+  document.querySelectorAll('p').forEach((element) => element.onclick = (e) => {
+    document.getElementById('lengthSelector').innerHTML = e.target.innerText;
+  });
+
+  
     const readyButton = document.getElementById("ready_button");
     const wordLength = document.getElementById("length_value");
     const spectator = document.getElementById('spectate');
 
-    document.getElementById("my-user").innerHTML = `I'm ${localStorage.getItem("teamName")}`;
+    document.getElementById("my-name").innerText = `${localStorage.getItem("teamName")}`;
 
     const socket = io(`${backend_website}`, { transports: ['websocket'] });
     socket.on("connect", () => {
@@ -50,11 +55,13 @@ window.onload = function() {
     socket.on('ready_update', (data) => {
       localStorage.removeItem("endTime");
       if (data._id !== id) {
+        const readyStatus = document.getElementById( `ready-${data._id}`);
         if (data.ready) {
-          document.getElementById(`user-${data._id}`).classList.add("ready");
+          readyStatus.classList.add("ready-user");
         } else {
-          document.getElementById(`user-${data._id}`).classList.remove("ready");
+          readyStatus.classList.remove("ready-user");
         }
+        readyStatus.innerText = data.ready ? "READY" : "NOT READY";
       }
     });
 
@@ -90,11 +97,26 @@ window.onload = function() {
 const addUser = (newId, name, ready) => {
   if (newId !== id && !allUsers.has(newId)) {
     allUsers.add(newId);
-    let new_user = document.createElement('div');
-    new_user.id = `user-${newId}`
-    new_user.textContent = name;
-    new_user.className = (ready ? "ready" : "");
-    document.getElementById('users').appendChild(new_user);
+
+    const userContainer = document.createElement('div');
+    userContainer.classList.add('user-container');
+    userContainer.id = `user-${newId}`;
+
+    const userNameDiv = document.createElement('div');
+    userNameDiv.classList.add("user-name");
+    userNameDiv.textContent = name;
+    userContainer.appendChild(userNameDiv);
+
+    const readyStatusP = document.createElement("p");
+    readyStatusP.classList.add("ready-status");
+    if (ready) {
+      readyStatusP.classList.toggle("ready-user");
+    }
+    readyStatusP.id = `ready-${newId}`
+    readyStatusP.innerText = ready ? "READY" : "NOT READY";
+    userContainer.appendChild(readyStatusP);
+
+    document.getElementById('users').appendChild(userContainer);
   }
 }
 
@@ -107,11 +129,13 @@ const removeUser = (id) => {
 }
 
 const updateReadyStatus = (newReady) => {
-  const readyStatus = document.getElementById("ready_status");
+  const readyStatus = document.getElementById("my-ready-status");
   ready = newReady;
+  const readyButton = document.getElementById("ready_button");
+  readyButton.innerText = (ready) ? "Ready" : "Not Ready";
   localStorage.removeItem("endTime");
-  readyStatus.innerHTML = ready ? 'Ready' : 'Not Ready';
-  readyStatus.classList.toggle('ready');
+  readyStatus.innerHTML = ready ? 'READY' : 'NOT READY';
+  readyStatus.classList.toggle('ready-user');
   localStorage.setItem("ready", ready);
 }
 
@@ -135,10 +159,10 @@ const getListOfUsers = () => {
       const users = object.users;
       Object.keys(users).forEach((key) => {
         if (key === id) {
-          if (!users[key].ready) {
-            document.getElementById("ready_status").classList.toggle("ready");
-          }
           updateReadyStatus(users[key].ready);
+          if (!users[key].ready) {
+            document.getElementById("my-ready-status").classList.toggle("ready-user");
+          }
         } else if (users[key].connected) {
           addUser(key, users[key].name, users[key].ready);
         }

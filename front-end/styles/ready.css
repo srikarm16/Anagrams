@@ -1,5 +1,17 @@
 * {
   font-family: 'Comfortaa', cursive;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  width: 100%;
+  height: 100%;
 }
 
 #ready_status {
@@ -47,8 +59,31 @@
   display:flex;
   flex-direction: column;
   width: 30rem;
+  padding: 1rem;
+  background-color: rgb(212, 212, 240);
+}
+
+.ready-page {
+  width: 100%;
   height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
   background-color: rgb(203, 203, 231);
+}
+
+.word-length-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+#word-length-label {
+  margin-right: 1rem;
 }
 
 #users-title {
@@ -60,6 +95,15 @@
   padding: 0 2rem 2rem 2rem;
   display: flex;
   flex-direction: column;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.spectate_container {
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
+  flex-direction: row;
 }
 
 .user-container {
@@ -144,6 +188,17 @@ option {
   display: block;
 }
 
+#spectate {
+  border: 2px solid rgb(70, 70, 24);
+  padding: 0.7rem;
+  font-size: 12pt;
+  background-color: rgb(209, 209, 26);
+}
+
+#spectate:hover {
+  background-color: rgb(185, 185, 57);
+}
+
 .dropdown-content p:hover {background-color: #f1f1f1}
 
 .dropdown:hover .dropdown-content {
@@ -152,4 +207,74 @@ option {
 
 .dropdown:hover .dropbtn {
   background-color: #ffebfc;
+}
+
+@media (max-width: 524px) {
+    .users-container {
+      display:flex;
+      flex-direction: column;
+      width: 20rem;
+      padding: 1rem;
+      background-color: rgb(212, 212, 240);
+    }
+
+  #users-title {
+    padding: 0 .5rem .5rem .5rem;
+    font-size: 18pt;
+  }
+
+  #ready_button {
+    width: 70%;
+    margin: 2rem auto;
+    border: 4px solid white;
+    font-size: 25pt;
+    padding: 1rem 0;
+  }
+
+
+  .user-name {
+    font-size: 12pt;
+  }
+
+  #spectate {
+    border: 2px solid rgb(70, 70, 24);
+    padding: 0.7rem;
+    font-size: 10pt;
+    background-color: rgb(209, 209, 26);
+  }
+}
+
+@media (max-width: 350px) {
+    .users-container {
+      display:flex;
+      flex-direction: column;
+      width: 18rem;
+      padding: .5rem;
+      background-color: rgb(212, 212, 240);
+    }
+
+  #users-title {
+    padding: 0 .5rem .5rem .5rem;
+    font-size: 18pt;
+  }
+
+  #ready_button {
+    width: 70%;
+    margin: 2rem auto;
+    border: 4px solid white;
+    font-size: 25pt;
+    padding: 1rem 0;
+  }
+
+
+  .user-name {
+    font-size: 11pt;
+  }
+
+  #spectate {
+    border: 2px solid rgb(70, 70, 24);
+    padding: 0.7rem;
+    font-size: 10pt;
+    background-color: rgb(209, 209, 26);
+  }
 }

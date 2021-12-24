@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="styles/ready.css">
 </head>
 <body>
-  <div class="dropdown">
+  <!-- <div class="dropdown">
     <div class="dropbtn" id="lengthSelector">Select a Word Length</div>
     <div class="dropdown-content">
       <p>5</p>
@@ -23,34 +23,39 @@
       <p>10</p>
     </div>
   </div>
-  <br>
+  <br> -->
 
 
-  <label for="length">Word Length:</label>
-  <select name="length" id="length_value">
-    <option value="3">3</option>
-    <option value="4">4</option>
-    <option value="5">5</option>
-    <option value="6">6</option>
-    <option value="7">7</option>
-    <option value="8">8</option>
-    <option value="9">9</option>
-    <option value="10">10</option>
-  </select>
 
-  <div class="users-container">
-    <button id="ready_button" >Not Ready</button>
-    <h1 id="users-title">Users</h1>
-    <div id="users">
-      <div class="user-container" id="me">
-        <div class="user-name" id="my-name">Chaitanya</div>
-        <p class="ready-status" id="my-ready-status">NOT READY</p>
+  <div class="ready-page">
+    <div class="users-container">
+      <div class="word-length-container">
+        <label for="length" id="word-length-label">Word Length:</label>
+        <select name="length" id="length_value">
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+        </select>
+      </div>
+      <button id="ready_button" >Not Ready</button>
+      <h1 id="users-title">Users</h1>
+      <div id="users">
+        <div class="user-container" id="me">
+          <div class="user-name" id="my-name">Chaitanya</div>
+          <p class="ready-status" id="my-ready-status">NOT READY</p>
+        </div>
+      </div>
+      <div class="spectate_container">
+        <button id="spectate">Spectate Instead</button>
       </div>
     </div>
   </div>
-
   <div id="loading"></div>
-  <button id="spectate">Spectate Instead</button>
 </body>
 <footer>
   <script src="scripts/time.js"></script>

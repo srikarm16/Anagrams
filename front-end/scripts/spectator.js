@@ -77,7 +77,7 @@ window.onload = () => {
   socket.on("game_done", () => {
     currentState = "ready";
     localStorage.removeItem("endTime");
-    // window.location.href = "end_screen.html";
+    window.location.href = "end_screen.html";
   })
 
   socket.on("word_entered", data => {

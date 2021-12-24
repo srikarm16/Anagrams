@@ -121,11 +121,13 @@ const makePodium = (data, place, wordListID) => {
 
   const numWords = document.createElement('div');
   numWords.id = 'num-words';
-  numWords.innerHTML = `Total Words: ${data.words.length}`;
+  // numWords.innerHTML = `Total Words: ${data.words.length}`;
+  numWords.innerHTML = `${data.words.length} words`;
 
   const score = document.createElement('div');
   score.id = 'score';
-  score.innerHTML = `Score: ${data.score}`;
+  // score.innerHTML = `Score: ${data.score}`;
+  score.innerHTML = `${data.score} pts`;
 
   const wordList = document.createElement('div');
   wordList.classList.add('word-list');

@@ -1,6 +1,7 @@
 const letters = [];
 let randomLettersMap = new Map();
 let currentLettersMap = new Map();
+const timerSeconds = 90;
 const letterElements = [];
 const randomLetterElements = [];
 const maxLength = parseInt(localStorage.getItem("max_length"));
@@ -38,9 +39,9 @@ const countdownTimer = () => {
   let remainingTime = timeRemaining(localStorage.getItem("endTime"));
   if (windowLoaded) {
     const countdownElem = document.getElementById("countdown");
-    countdownElem.innerText = Math.ceil(remainingTime - 60);
+    countdownElem.innerText = Math.ceil(remainingTime - timerSeconds);
   }
-  if (remainingTime > 60) {
+  if (remainingTime > timerSeconds) {
     setTimeout(countdownTimer, (remainingTime - Math.floor(remainingTime)) * 1000);
   } else {
     if (windowLoaded) {
@@ -79,61 +80,7 @@ window.onload = function() {
 
   letterElements[0].classList.add('selected');
 
-  document.addEventListener("keydown", (e) => {
-    const letter = e.key;
-
-    if (letter === 'Backspace') {
-      if (lettersPressed !== 0) {
-
-        if (lettersPressed < maxLength) {
-          letterElements[lettersPressed].classList.remove('selected');
-        }
-
-        currentLettersMap.set(letters[lettersPressed - 1], currentLettersMap.get(letters[lettersPressed - 1]) - 1);
-        randomLettersMap.get(letters[lettersPressed - 1])[currentLettersMap.get(letters[lettersPressed - 1])].classList.remove("used_letter");
-
-        letterElements[--lettersPressed].innerHTML = '';
-        letters[lettersPressed] = '';
-      }
-    } else if (alpha.has(letter) && lettersPressed != maxLength) {
-      const newLetterCount = (currentLettersMap.get(letter) ?? 0) + 1;
-      console.log((randomLettersMap.get(letter) ?? []));
-      if (newLetterCount <= (randomLettersMap.get(letter) ?? []).length) {
-        currentLettersMap.set(letter, newLetterCount);
-        randomLettersMap.get(letter)[newLetterCount - 1].classList.add("used_letter");
-        letters[lettersPressed] = letter;
-
-        if (lettersPressed < maxLength) {
-          letterElements[lettersPressed].classList.remove('selected');
-        }
-
-        letterElements[lettersPressed++].innerHTML = letter;
-      }
-    }
-    else if (letter === "Enter") {
-      currentLettersMap.clear();
-      randomLetterElements.forEach((randomLetterElement) => {
-        randomLetterElement.classList.remove("used_letter");
-      })
-      let word = '';
-      for (let i = 0; i < lettersPressed; i++)
-        word += letters[i];
-
-      lettersPressed = 0;
-      document.getElementById('guesses').querySelectorAll('div').forEach(child => {
-
-        child.classList.remove('selected');
-
-        child.innerHTML = '';
-      });
-      letterElements[0].classList.add('selected');
-
-      updateScore(word);
-    }
-    if (lettersPressed < maxLength) {
-      letterElements[lettersPressed].classList.add("selected");
-    }
-  });
+  document.addEventListener("keydown", (e) => {keyPressed(e.key)});
 }
 
 const getScore = () => {
@@ -154,9 +101,15 @@ const createDivs = () => {
   for (let i = 0; i < maxLength; i++) {
     const letter = document.createElement('div');
     letter.id = `r${i + 1}`;
+    letter.classList.add('randomLetter');
     letter.maxLength = 1;
     letter.innerHTML = '';
     randomLetter.appendChild(letter);
+
+    letter.onclick = (e) => {
+      keyPressed(e.target.innerText);
+      e.preventDefault();
+    }
     
     const guess = document.createElement('div');
     guess.id = `l${i + 1}`;
@@ -187,6 +140,7 @@ const getRandomLetters = (wordLen) => {
         waiter.style.display = "none";
         timer();
       }
+      addOnClickListeners();
     });
   });
 }
@@ -245,6 +199,60 @@ const animateScoreIncrease = (scoreChange, word) => {
   animateScoreIncreaseCounter();
 }
 
+const keyPressed = (letter) => {
+    if (letter === 'Backspace') {
+      if (lettersPressed !== 0) {
+
+        if (lettersPressed < maxLength) {
+          letterElements[lettersPressed].classList.remove('selected');
+        }
+
+        currentLettersMap.set(letters[lettersPressed - 1], currentLettersMap.get(letters[lettersPressed - 1]) - 1);
+        randomLettersMap.get(letters[lettersPressed - 1])[currentLettersMap.get(letters[lettersPressed - 1])].classList.remove("used_letter");
+
+        letterElements[--lettersPressed].innerHTML = '';
+        letters[lettersPressed] = '';
+      }
+    } else if (alpha.has(letter) && lettersPressed != maxLength) {
+      const newLetterCount = (currentLettersMap.get(letter) ?? 0) + 1;
+      console.log((randomLettersMap.get(letter) ?? []));
+      if (newLetterCount <= (randomLettersMap.get(letter) ?? []).length) {
+        currentLettersMap.set(letter, newLetterCount);
+        randomLettersMap.get(letter)[newLetterCount - 1].classList.add("used_letter");
+        letters[lettersPressed] = letter;
+
+        if (lettersPressed < maxLength) {
+          letterElements[lettersPressed].classList.remove('selected');
+        }
+
+        letterElements[lettersPressed++].innerHTML = letter;
+      }
+    }
+    else if (letter === "Enter") {
+      currentLettersMap.clear();
+      randomLetterElements.forEach((randomLetterElement) => {
+        randomLetterElement.classList.remove("used_letter");
+      })
+      let word = '';
+      for (let i = 0; i < lettersPressed; i++)
+        word += letters[i];
+
+      lettersPressed = 0;
+      document.getElementById('guesses').querySelectorAll('div').forEach(child => {
+
+        child.classList.remove('selected');
+
+        child.innerHTML = '';
+      });
+      letterElements[0].classList.add('selected');
+
+      updateScore(word);
+    }
+    if (lettersPressed < maxLength) {
+      letterElements[lettersPressed].classList.add("selected");
+    }
+}
+
 const timer = () => {
   const secondsRaw = timeRemaining(localStorage.getItem("endTime"));
   const seconds = Math.ceil(secondsRaw);
@@ -264,7 +272,7 @@ const timer = () => {
       credentials: "include",
       method: "POST",
     }).then(() => {
-      window.location.href = "end_screen.html";
+      // window.location.href = "end_screen.html";
     });
   }
 }

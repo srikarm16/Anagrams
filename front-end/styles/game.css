@@ -21,9 +21,14 @@ body {
   justify-content: center;
 }
 
-#guesses {
+#guess-bar {
   position: relative;
   width: 200rem;
+}
+
+#guesses {
+  /* position: relative; */
+  /* width: 200rem; */
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -40,7 +45,7 @@ body {
 }
 
 .used_letter {
-  color: gray;
+  color: rgba(0, 0, 0, 0.15);
 }
 
 div > div {
@@ -72,12 +77,20 @@ div > div {
   display: flex;
   justify-content: center;
   align-items: center;
-  column-gap: 3em;
+  column-gap: 2em;
   /* margin-bottom: 3rem; */
   margin-bottom: 6rem;
   padding: 1em;
   /* border: 0.25em solid; */
   border-radius: 0.35em;
+}
+
+.randomLetter {
+  width: 1em;
+  height: 1.1em;
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.6);
+  border-radius: 0.25em;
 }
 
 @keyframes score_anim {

@@ -152,7 +152,7 @@ const checkReadyAndStartGame = async (socket) => {
         }
       }
       game.letters = getScrambledLetters(game.wordLength);
-      game.endTime = luxon.DateTime.now().plus({minutes: 1, seconds: 5}).toMillis();
+      game.endTime = luxon.DateTime.now().plus({minutes: 1, seconds: 35}).toMillis();
       await game.save();
       socket.broadcast.emit("game_start", game.endTime);
     }
